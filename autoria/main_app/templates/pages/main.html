@@ -1,0 +1,839 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO.RIA</title>
+    <style>
+*  {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body  {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #ffffff;
+    color: #1f2024;
+    padding: 0;
+}
+
+.page  {
+    max-width: 1304px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+}
+
+.recommendations-title  {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 24px 0 20px;
+}
+
+.cars-grid  {
+    display: grid;
+    width: 100%;
+    max-width: 1272px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin: 0 auto;
+}
+
+/* Card styles */ .card  {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: #333;
+}
+
+.card-image-container  {
+    position: relative;
+    width: 100%;
+    height: 210px;
+    background-color: #ccc;
+}
+
+.card-image-container img  {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.btn-close  {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.auto-ria-logo  {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.auto-ria-logo .auto  {
+    background-color: #db5c4c;
+    padding: 2px 4px;
+}
+
+.auto-ria-logo .ria  {
+    background-color: #254c70;
+    padding: 2px 4px;
+}
+
+.carousel-dots  {
+    position: absolute;
+    bottom: 25px;
+    left: 15px;
+    display: flex;
+    gap: 6px;
+}
+
+.dot  {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.dot.active  {
+    background-color: white;
+}
+
+.vin-badge  {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: #2b303a;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-favorite  {
+    position: absolute;
+    bottom: -22px;
+    right: 15px;
+    width: 44px;
+    height: 44px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 2;
+}
+
+.cars-grid .card-content  {
+    padding: 20px 15px 15px 15px;
+}
+
+.cars-grid .car-title  {
+    display: block;
+    font-size: 17px;
+    font-weight: bold;
+    color: #0b2e59;
+    text-decoration: underline;
+    margin-bottom: 10px;
+}
+
+.cars-grid .car-title:hover  {
+    text-decoration: none;
+}
+
+.price-block  {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.price-usd  {
+    color: #00a046;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.price-divider  {
+    color: #333;
+    font-weight: bold;
+}
+
+.price-uah  {
+    color: #333;
+    font-size: 14px;
+}
+
+.features-grid  {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 12px;
+    column-gap: 10px;
+    margin-bottom: 15px;
+}
+
+.feature-item  {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #333;
+}
+
+.feature-item svg  {
+    color: #555;
+}
+
+.card-footer  {
+    font-size: 12px;
+    color: #8c929d;
+}
+
+/* Базовые настройки для контейнера */ .searching  {
+    background-color: #eaf1f7;
+    /* Светло-голубой фон вокруг формы */ padding: 40px 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+}
+
+.filters  {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    width: 100%;
+    max-width: 1272px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.filters h2  {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    color: #2b2b2b;
+}
+
+/* Стили для кнопок типа транспорта */ .type-pills  {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    display: flex;
+    gap: 8px;
+}
+
+.type-pills button  {
+    background: #ffffff;
+    border: 1px solid #e0e3e6;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #2b2b2b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.type-pills button:hover  {
+    border-color: #b0b5ba;
+}
+
+.type-pills button.active  {
+    background: #2b2b2b;
+    color: #ffffff;
+    border-color: #2b2b2b;
+}
+
+/* Сетка для выпадающих списков */ .input-grid  {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.dropdown  {
+    position: relative;
+}
+
+.dropdown select  {
+    width: 100%;
+    padding: 12px 30px 12px 12px;
+    border: 1px solid #e0e3e6;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #555;
+    background-color: #fff;
+    cursor: pointer;
+    appearance: none;
+    /* Убираем стандартную стрелку браузера */ -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    outline: none;
+}
+
+.dropdown select:focus  {
+    border-color: #2b2b2b;
+}
+
+/* Стили для лейбла поверх рамки */ .has-label .floating-label  {
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    background: #ffffff;
+    padding: 0 4px;
+    font-size: 11px;
+    color: #888;
+    z-index: 1;
+}
+
+/* Стили для кнопок поиска */ .action-buttons  {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.btn-submit  {
+    background-color: #cc3333;
+    /* Красный цвет кнопки */ color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover  {
+    background-color: #b32a2a;
+}
+
+.btn-advanced  {
+    background-color: #ffffff;
+    color: #2b2b2b;
+    border: 1px solid #2b2b2b;
+    border-radius: 24px;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-advanced:hover  {
+    background-color: #f7f7f7;
+}
+
+
+.searchBlock  {
+    max-width: 1272px;
+    /* Ширина контейнера */ margin: 0 auto 24px;
+    background: #fff;
+    padding: 24px 0 0;
+}
+
+/* Шапка */ .searchBlock-header  {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 18px;
+}
+
+.searchBlock-header h2  {
+    margin: 0;
+    font-size: 24px;
+    line-height: 30px;
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+/* Кнопки управления */ .searchBlock-controls  {
+    display: flex;
+    gap: 12px;
+    margin-top: -24px;
+}
+
+.searchBlock-controls button  {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-prev  {
+    border: 1.5px solid #1a1a1a;
+    color: #1a1a1a;
+}
+
+.btn-next  {
+    border: 1.5px solid #d4d4d4;
+    color: #999;
+}
+
+/* Приховываємо те, що виходить за межі контейнера */ .carousel-viewport  {
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Ensure header area is white to match page background */ header  {
+    background-color: #ffffff;
+}
+
+/* Трек, який буде рухатись */ .carousel-track  {
+    display: flex;
+    gap: 16px;
+    transition: transform 0.4s ease-in-out;
+}
+
+.carousel-item  {
+    flex: 0 0 calc((100% - 32px) / 3);
+    height: 72px;
+}
+
+.search-card  {
+    height: 72px;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px 14px;
+    background-color: #ffffff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+    transition: box-shadow 0.18s ease;
+}
+
+.search-card .card-content  {
+    padding: 0;
+    /* remove inherited padding that pushed content down */ height: 100%;
+    /* fill available height inside .search-card */ box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+}
+
+.card-icon  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.card-icon img, .card-icon svg  {
+    max-width: 100%;
+    max-height: 100%;
+    opacity: 0.7;
+}
+
+.card-text  {
+    flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.card-title  {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-subtitle  {
+    margin: 0;
+    font-size: 13px;
+    line-height: 18px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Додает три точки, если текст длинный */
+}
+
+.card-badge  {
+    flex-shrink: 0;
+}
+
+.card-badge span  {
+    background-color: #d14040;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 16px;
+}
+</style>
+</head>
+<body>
+    {% include 'shared/header.html' %}
+
+    <main class="page">
+
+        <div class="searching">
+            <div class="filters">
+                <h2>Знаємо, бо перевірили</h2>
+
+                <form method="GET" action="/search/" id="searchForm">
+                    <ul class="type-pills">
+                        <li><button type="button" class="active" data-type="">Всі</button></li>
+                        <li><button type="button" data-type="used">Вживані</button></li>
+                        <li><button type="button" data-type="new">Нові</button></li>
+                        <li><button type="button" data-type="imported">Під пригон</button></li>
+                    </ul>
+
+                    <div class="form-wrapper">
+                        <div class="input-grid">
+                            <div class="dropdown has-label">
+                                <span class="floating-label">Тип транспорту</span>
+                                <select name="transport_type">
+                                    <option value="">Оберіть</option>
+                                    {% for transport_type in transport_types %}
+                                    <option value="{{ transport_type }}">{{ transport_type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="dropdown">
+                                <select name="car_brand" id="mainCarBrandSelect">
+                                    <option value="" disabled selected hidden>Марка</option>
+                                    {% for brand in brands %}
+                                    <option value="{{ brand }}">{{ brand }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select name="car_model" id="mainCarModelSelect">
+                                    <option value="" disabled selected hidden>Модель</option>
+                                    {% for model in models %}
+                                    <option value="{{ model }}">{{ model }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select name="production_year">
+                                    <option value="" disabled selected hidden>Рік випуску</option>
+                                    {% for year in years %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select name="region">
+                                    <option value="" disabled selected hidden>Регіон</option>
+                                    {% for region in regions %}
+                                    <option value="{{ region }}">{{ region }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select name="car_fuel_type">
+                                    <option value="" disabled selected hidden>Пальне</option>
+                                    {% for fuel_type in fuel_types %}
+                                    <option value="{{ fuel_type }}">{{ fuel_type }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select name="car_transmission">
+                                    <option value="" disabled selected hidden>Коробка передач</option>
+                                    {% for transmission in transmissions %}
+                                    <option value="{{ transmission }}">{{ transmission }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" class="btn-submit">Шукати</button>
+                            <button type="button" class="btn-advanced" onclick="window.location.href='/search/'">Розширений пошук</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+       <div class="searchBlock">
+    <div class="searchBlock-header">
+        <h2>Продовжити пошук</h2>
+        <div class="searchBlock-controls">
+            <button class="btn-prev">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="btn-next">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="carousel-viewport">
+        <div class="carousel-track" id="track">
+
+            <div class="carousel-item">
+                <a href="#" class="search-card">
+                    <div class="card-content">
+                        <div class="card-text">
+                            <p class="card-title">Мото</p>
+                            <p class="card-subtitle">Вся Україна, Від дорогих до дешевих, Авт...</p>
+                        </div>
+                        <div class="card-badge">
+                            <span>+1 198</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="carousel-item">
+                <a href="#" class="search-card">
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Honda.svg" alt="Honda">
+                        </div>
+                        <div class="card-text">
+                            <p class="card-title">Honda, Мото</p>
+                            <p class="card-subtitle">Вся Україна, Авто в Україні</p>
+                        </div>
+                        <div class="card-badge">
+                            <span>+146</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="carousel-item">
+                <a href="#" class="search-card">
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#707070" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2l4 10-8-5h8l-8 5z"/></svg>
+                        </div>
+                        <div class="card-text">
+                            <p class="card-title">Yamaha, Мото</p>
+                            <p class="card-subtitle">Вживані, Вся Україна, 7000 - 11000 $, Ві...</p>
+                        </div>
+                        <div class="card-badge">
+                            <span>+28</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="carousel-item">
+                <a href="#" class="search-card">
+                    <div class="card-content">
+                        <div class="card-text">
+                            <p class="card-title">Інше Авто</p>
+                            <p class="card-subtitle">Київ, Нові автомобілі...</p>
+                        </div>
+                        <div class="card-badge">
+                            <span>+54</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+        <div>
+            <h2 class="recommendations-title">AUTO.RIA рекомендує</h2>
+
+            <div class="cars-grid">
+                {% for card in cars %}
+                    {% include 'elements/card_fragment.html' with ad_id=card.ad_id ad_url=card.ad_url car_model=card.car_model car_image_url=card.car_image_url car_price=card.car_price car_price_uah=card.car_price_uah car_mileage=card.car_mileage car_transmission=card.car_transmission car_fuel_type=card.car_fuel_type car_city=card.car_city is_favorite=card.is_favorite %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+
+    {% include 'shared/footer.html' %}
+</body>
+</html>
+
+{{ brand_to_models|json_script:"mainBrandToModelsData" }}
+{{ models|json_script:"mainAllModelsData" }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('track');
+    const btnPrev = document.querySelector('.btn-prev');
+    const btnNext = document.querySelector('.btn-next');
+
+    let currentIndex = 0;
+
+    // Отримуємо кількість елементів
+    const items = document.querySelectorAll('.carousel-item');
+    const totalItems = items.length;
+
+    // Скільки елементів показувати і прокручувати за раз
+    const itemsToShow = 3;
+
+    function updateCarousel() {
+        // Отримуємо ширину одного елемента + ширину gap
+        const itemWidth = items[0].getBoundingClientRect().width;
+        const gap = 16; // Збігається з gap у CSS
+
+        // Розраховуємо зсув
+        const moveAmount = (itemWidth + gap) * currentIndex;
+        track.style.transform = `translateX(-${moveAmount}px)`;
+
+        // Візуальне оновлення кнопок (сіра/чорна)
+        if (currentIndex === 0) {
+            btnPrev.style.borderColor = '#d4d4d4';
+            btnPrev.style.color = '#999';
+        } else {
+            btnPrev.style.borderColor = '#1a1a1a';
+            btnPrev.style.color = '#1a1a1a';
+        }
+
+        if (currentIndex >= totalItems - itemsToShow) {
+            btnNext.style.borderColor = '#d4d4d4';
+            btnNext.style.color = '#999';
+        } else {
+            btnNext.style.borderColor = '#1a1a1a';
+            btnNext.style.color = '#1a1a1a';
+        }
+    }
+
+    btnNext.addEventListener('click', () => {
+        if (currentIndex < totalItems - itemsToShow) {
+            currentIndex += itemsToShow;
+            // Запобігаємо прокрутці в порожнечу, якщо залишок менше 3
+            if (currentIndex > totalItems - itemsToShow) {
+                currentIndex = totalItems - itemsToShow;
+            }
+            updateCarousel();
+        }
+    });
+
+    btnPrev.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex -= itemsToShow;
+            if (currentIndex < 0) {
+                currentIndex = 0;
+            }
+            updateCarousel();
+        }
+    });
+
+    // Ініціалізація стану кнопок
+    updateCarousel();
+
+    document.querySelectorAll('.cars-grid .card[data-url]').forEach((cardEl) => {
+        cardEl.addEventListener('click', (event) => {
+            if (event.target.closest('a, button, .btn-close, .btn-favorite')) {
+                return;
+            }
+            const url = cardEl.dataset.url;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    // Dynamic model selection based on brand for main page
+    function updateMainModelOptions() {
+        const brandToModels = JSON.parse(document.getElementById('mainBrandToModelsData').textContent);
+        const allModels = JSON.parse(document.getElementById('mainAllModelsData').textContent);
+        const carBrandSelect = document.getElementById("mainCarBrandSelect");
+        const carModelSelect = document.getElementById("mainCarModelSelect");
+
+        if (!carBrandSelect || !carModelSelect) return;
+
+        const selectedBrand = carBrandSelect.value;
+        const currentModelValue = carModelSelect.value;
+
+        carModelSelect.innerHTML = '<option value="" disabled selected hidden>Модель</option>';
+
+        if (selectedBrand && brandToModels[selectedBrand]) {
+            brandToModels[selectedBrand].forEach(model => {
+                const option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                if (model === currentModelValue) {
+                    option.selected = true;
+                }
+                carModelSelect.appendChild(option);
+            });
+        } else {
+            // If no brand selected, show all models
+            allModels.forEach(model => {
+                const option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                if (model === currentModelValue) {
+                    option.selected = true;
+                }
+                carModelSelect.appendChild(option);
+            });
+        }
+    }
+
+    const mainCarBrandSelect = document.getElementById("mainCarBrandSelect");
+    if (mainCarBrandSelect) {
+        mainCarBrandSelect.addEventListener("change", updateMainModelOptions);
+    }
+
+    // Initialize model options on page load
+    updateMainModelOptions();
+
+    // Handle type pills buttons
+    const typePills = document.querySelectorAll('.type-pills button');
+    typePills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            // Remove active class from all pills
+            typePills.forEach(p => p.classList.remove('active'));
+            // Add active class to clicked pill
+            this.classList.add('active');
+            
+            // Get the type and handle filtering logic
+            const type = this.getAttribute('data-type');
+            // You can add specific logic here based on type
+            console.log('Selected type:', type);
+        });
+    });
+});
+</script>

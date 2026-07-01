@@ -1,0 +1,22 @@
+# Основні
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Авторизація (Google OAuth)
+social-auth-app-django==5.4.0
+social-auth-core==4.5.4
+
+# Робота з фото
+Pillow==10.1.0
+
+# Змінні середовища
+python-dotenv==1.0.0
+
+# База даних (PostgreSQL - для продакшну)
+psycopg2-binary==2.9.9
+
+# Додаткові корисні бібліотеки
+django-filter==23.5
+django-debug-toolbar==4.1.0
+django-ckeditor==6.7.0
