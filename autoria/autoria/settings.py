@@ -1,11 +1,15 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Завантажуємо змінні з .env
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-your-secret-key-here-12345'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here-12345')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -52,10 +56,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'autoria.wsgi.application'
 
+# ========== ПІДКЛЮЧЕННЯ ДО SUPABASE ==========
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',  # Обов'язково для Supabase!
+        },
     }
 }
 
