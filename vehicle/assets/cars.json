@@ -1,0 +1,62 @@
+[
+    {
+        "brand": "Toyota",
+        "model": "Camry",
+        "year": 2020,
+        "price": 35000,
+        "mileage": 25000,
+        "fuel_type": "BENZIN",
+        "transmission": "AUTOMATIC",
+        "body_type": "SEDAN",
+        "drive_type": "FRONT",
+        "engine_volume": 2.5,
+        "engine_power": 200,
+        "color": "Білий",
+        "description": "Відмінний стан, повний комплект"
+    },
+    {
+        "brand": "BMW",
+        "model": "X5",
+        "year": 2021,
+        "price": 55000,
+        "mileage": 15000,
+        "fuel_type": "DIESEL",
+        "transmission": "AUTOMATIC",
+        "body_type": "SUV",
+        "drive_type": "FULL",
+        "engine_volume": 3.0,
+        "engine_power": 280,
+        "color": "Чорний",
+        "description": "Позашляховик преміум класу"
+    },
+    {
+        "brand": "Tesla",
+        "model": "Model 3",
+        "year": 2022,
+        "price": 48000,
+        "mileage": 10000,
+        "fuel_type": "ELECTRO",
+        "transmission": "AUTOMATIC",
+        "body_type": "SEDAN",
+        "drive_type": "REAR",
+        "engine_volume": null,
+        "engine_power": 350,
+        "color": "Синій",
+        "description": "Електромобіль, автономія 500 км"
+    },
+    {
+        "brand": "Volkswagen",
+        "model": "Golf",
+        "year": 2019,
+        "price": 22000,
+        "mileage": 45000,
+        "fuel_type": "BENZIN",
+        "transmission": "MANUAL",
+        "body_type": "HATCHBACK",
+        "drive_type": "FRONT",
+        "engine_volume": 1.4,
+        "engine_power": 125,
+        "color": "Сірий",
+        "description": "Економічний та надійний"
+    }
+]
