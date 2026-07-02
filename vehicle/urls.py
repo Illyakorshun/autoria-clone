@@ -12,6 +12,11 @@ urlpatterns = [
     path('add/', views.add_vehicle, name='add_vehicle'),
     path('<int:pk>/edit/', views.edit_vehicle, name='edit_vehicle'),
     path('<int:pk>/delete/', views.delete_vehicle, name='delete_vehicle'),
+    path('', views.vehicle_list, name='vehicle_list'),
+    path('search/', views.vehicle_search, name='vehicle_search'),
+    path('add/', views.add_vehicle, name='add_vehicle'),
+    path('<int:pk>/', views.vehicle_detail, name='vehicle_detail'),
+    path('new/', views.vehicle_list, name='new_vehicles'),
 
     # API
     path('api/list/', views.api_vehicle_list, name='api_vehicle_list'),

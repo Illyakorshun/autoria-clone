@@ -25,7 +25,7 @@ def index(request):
         'models': Vehicle.objects.values('model').distinct().count(),
     }
 
-    return render(request, 'pages/main.html', {
+    return render(request, 'pages/home.html', {
         'latest_vehicles': latest_vehicles,
         'popular_vehicles': popular_vehicles,
         'stats': stats,

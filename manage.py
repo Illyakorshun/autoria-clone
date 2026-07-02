@@ -20,3 +20,26 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    from users.models import User
+
+    # Знаходимо користувача по email
+    user = User.objects.get(email='korsillua@gmail.com')
+
+    # Встановлюємо новий пароль
+    user.set_password('admin123')
+    user.save()
+
+    print(f"✅ Пароль змінено для {user.email}")
+    print(f"🔑 Новий пароль: admin123")
+
+    # Перевіряємо чи все ок
+    exit()
+
+    from users.models import User
+
+    users = User.objects.all()
+    print(f"📊 Всього користувачів: {users.count()}")
+    for u in users:
+        print(f"Email: {u.email}, Username: {u.username}")
+    exit()

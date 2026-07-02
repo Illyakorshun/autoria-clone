@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTO.RIA — Пошук авто в Україні</title>
+<style>
+  /* ЗАГАЛЬНІ СТИЛІ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  a { text-decoration: none; }
+
+  /* ВЕРХНІЙ БАНЕР */
+  .top-banner {
+    background: #fffbe2;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #f5e9a6;
+  }
+  .top-banner a { color: #256799; font-weight: bold; }
+  .top-banner a:hover { text-decoration: underline; }
+
+  /* МАКЕТ */
+  .page-wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 16px;
+    display: flex;
+    gap: 24px;
+  }
+
+  /* ===== САЙДБАР ===== */
+  .sidebar { width: 280px; flex-shrink: 0; position: sticky; top: 20px; height: fit-content; max-height: calc(100vh - 40px); overflow-y: auto; }
+  .page-title { font-size: 24px; font-weight: bold; color: #222; margin-bottom: 16px; }
+
+  .sidebar-section { margin-bottom: 16px; }
+  .sidebar-label { font-size: 13px; color: #777; margin-bottom: 6px; font-weight: 500; }
+
+  .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
+  .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+  .checkbox-group span { font-size: 14px; color: #333; }
+
+  .price-inputs { display: flex; gap: 8px; margin-bottom: 8px; }
+  .price-input { flex: 1; padding: 10px 12px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px; width: 100%; }
+  .price-input:focus { outline: none; border-color: #256799; }
+
+  .currency-select { width: 100%; padding: 10px 12px; border: 1px solid #d4d4d4; border-radius: 4px; font-size: 14px; background: #fff; cursor: pointer; }
+
+  .trade-in-btn { margin-top: 6px; margin-left: 24px; padding: 4px 12px; border: 1px solid #d4d4d4; background: #fff; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  .trade-in-btn:hover { background: #f5f5f5; }
+
+  /* Вкладки Всі/Вживані/Нові */
+  .tab-group {
+    display: inline-flex;
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 3px;
+    margin-bottom: 16px;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    color: #555;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .tab.active { background: #222; color: #fff; }
+
+  /* Кнопка Під пригон */
+  .btn-prigon {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 20px;
+    padding: 8px;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .btn-prigon:hover { border-color: #999; }
+
+  /* Поля фільтрів */
+  .tag-select {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .tag-select .clear-btn { color: #999; border-radius: 50%; font-size: 10px; background: #e0e0e0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+
+  .filter-select {
+    width: 100%;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #555;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23666' d='M5 7L0 2h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+    appearance: none;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  /* ===== ГОЛОВНИЙ КОНТЕНТ ===== */
+  .main-content { flex: 1; min-width: 0; }
+
+  /* Верхня панель фільтрів */
+  .filters-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .active-filters-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .filter-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+  }
+  .filter-pill .remove { color: #aaa; cursor: pointer; font-size: 12px; }
+  .filter-pill .remove:hover { color: #e63c2f; }
+  .clear-all-link { color: #333; font-size: 13px; text-decoration: underline; cursor: pointer; background: none; border: none; }
+  .advanced-search-link { color: #256799; font-size: 13px; font-weight: bold; text-decoration: underline; cursor: pointer; }
+
+  /* Лічильник та сортування */
+  .results-info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .results-count { font-size: 14px; color: #333; }
+  .sort-select {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ===== КАРТКА АВТО ===== */
+  .car-card {
+    display: flex;
+    background: #fff;
+
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .car-image-wrap {
+    position: relative;
+    width: 250px;
+    flex-shrink: 0;
+  }
+  .car-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Бейджі на фото */
+  .badge-top { position: absolute; top: 12px; left: 12px; background: #fff; color: #333; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .badge-only { position: absolute; top: 12px; left: 0; background: #e63c2f; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 0 4px 4px 0; }
+  .badge-autoria { position: absolute; top: 12px; right: 12px; background: #e63c2f; color: #fff; font-size: 9px; font-weight: bold; padding: 2px 4px; border-radius: 2px; text-align: center; line-height: 1.2; }
+
+  .badge-vin { position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.7); color: #fff; font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; }
+  .badge-vin::before { content: '✓'; color: #00a046; font-weight: bold; font-size: 12px; }
+
+  .badge-plate { position: absolute; bottom: 12px; right: 12px; background: #fff; color: #222; font-size: 11px; font-weight: bold; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; border-left: 3px solid #256799; display: flex; align-items: center; }
+
+  /* Інформація про авто */
+  .car-info {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .car-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .car-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #256799;
+  }
+  .car-title:hover { text-decoration: underline; }
+  .car-subtitle { font-size: 13px; color: #777; margin-top: 2px; margin-bottom: 8px; }
+  .fav-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: #ccc; }
+  .fav-btn:hover { color: #e63c2f; }
+
+  /* Ціна */
+  .price-block { margin-bottom: 12px; }
+  .price-main { font-size: 20px; font-weight: bold; color: #00a046; }
+  .price-uah { font-size: 14px; color: #777; margin-left: 6px; }
+
+  /* Характеристики */
+  .car-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-bottom: 12px;
+  }
+  .meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; }
+  .meta-item svg { fill: none; stroke: #888; stroke-width: 1.5; flex-shrink: 0; }
+
+  /* Теги (Доступний кредит, тощо) */
+  .car-tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .tag-primary { background: #f0f5fa; color: #256799; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 4px; }
+  .tag-secondary { background: #fff; color: #555; border: 1px solid #dcdcdc; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 4px; }
+
+  /* Опис */
+  .car-desc { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; line-height: 1.4; }
+  .car-time { font-size: 12px; color: #999; }
+
+  /* Пропозиція дня (Заголовок) */
+  .promo-title-row { display: flex; align-items: center; gap: 6px; margin: 16px 0 8px 0; }
+  .promo-title-row span { font-size: 16px; font-weight: bold; color: #222; }
+
+  /* ===== ПЛАВАЮЧІ КНОПКИ ЗНИЗУ ===== */
+  .floating-bottom-right {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 100;
+  }
+  .btn-subscribe {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #222;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .btn-subscribe svg { color: #0088cc; }
+
+  .btn-up {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #777;
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+  }
+
+  .btn-chat {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .btn-chat svg { stroke: #555; }
+  .chat-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background: #e63c2f;
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+</style>
+</head>
+<body>
+
+ {% include 'shared/header.html' %}
+
+<form method="GET" action="/search/">
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h1 class="page-title">Пошук авто в Україні</h1>
+
+    <div class="tab-group">
+      <button class="tab active">Всі</button>
+      <button class="tab">Вживані</button>
+      <button class="tab">Нові</button>
+    </div>
+
+    <div class="sidebar-section">
+      <button type="button" class="btn-prigon" onclick="toggleFilter('imported')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+        <span>Під пригон</span>
+        <input type="checkbox" name="imported" id="imported" style="display: none;" {% if request.GET.imported %}checked{% endif %}>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <select class="filter-select" name="transport_type" onchange="autoSubmit()">
+        <option value="">Тип транспорту</option>
+        {% for transport_type in transport_types %}
+          <option value="{{ transport_type }}" {% if request.GET.transport_type == transport_type %}selected{% endif %}>{{ transport_type }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <select class="filter-select" name="body_type" onchange="autoSubmit()"><option value="">Тип кузова</option></select>
+    </div>
+
+    <div class="sidebar-section">
+      <select class="filter-select" name="car_brand" id="searchCarBrandSelect" onchange="autoSubmit(); updateSearchModelOptions();">
+        <option value="">Марка</option>
+        {% for brand in brands %}
+          <option value="{{ brand }}" {% if request.GET.car_brand == brand %}selected{% endif %}>{{ brand }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <select class="filter-select" name="car_model" id="searchCarModelSelect" onchange="autoSubmit()">
+        <option value="">Модель</option>
+        {% for model in models %}
+          <option value="{{ model }}" {% if request.GET.car_model == model %}selected{% endif %}>{{ model }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <select class="filter-select" name="production_year" onchange="autoSubmit()">
+        <option value="">Рік випуску</option>
+        {% for year in years %}
+          <option value="{{ year }}" {% if request.GET.production_year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="verified_vin" onchange="autoSubmit()" {% if request.GET.verified_vin %}checked{% endif %}>
+        <span>Перевірений VIN</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="has_license_plate" onchange="autoSubmit()" {% if request.GET.has_license_plate %}checked{% endif %}>
+        <span>Держ. номер</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="first_on_autoria" onchange="autoSubmit()" {% if request.GET.first_on_autoria %}checked{% endif %}>
+        <span>Вперше на AUTO.RIA</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="has_video" onchange="autoSubmit()" {% if request.GET.has_video %}checked{% endif %}>
+        <span>Відео</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="is_electric" onchange="autoSubmit()" {% if request.GET.is_electric %}checked{% endif %}>
+        <span>Електрокар</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Регіон</div>
+      <select class="filter-select" name="region" onchange="autoSubmit()">
+        <option value="">Область</option>
+        {% for region in regions %}
+          <option value="{{ region }}" {% if request.GET.region == region %}selected{% endif %}>{{ region }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Ціна</div>
+      <div class="price-inputs">
+        <input type="number" name="price_from" placeholder="Від" value="{{ request.GET.price_from }}" class="price-input" onchange="autoSubmit()">
+        <input type="number" name="price_to" placeholder="До" value="{{ request.GET.price_to }}" class="price-input" onchange="autoSubmit()">
+      </div>
+      <select class="currency-select" name="currency" onchange="autoSubmit()">
+        <option value="">Валюта</option>
+        {% for currency in currencies %}
+          <option value="{{ currency }}" {% if request.GET.currency == currency %}selected{% endif %}>{{ currency }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="installment_available" onchange="autoSubmit()" {% if request.GET.installment_available %}checked{% endif %}>
+        <span>Доступний кредит</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="exchange_available" onchange="autoSubmit()" {% if request.GET.exchange_available %}checked{% endif %}>
+        <span>Обмін на авто</span>
+      </label>
+      <button type="button" class="trade-in-btn">Trade-in</button>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="price_with_vat" onchange="autoSubmit()" {% if request.GET.price_with_vat %}checked{% endif %}>
+        <span>Ціна з ПДВ</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="installment_to_seller" onchange="autoSubmit()" {% if request.GET.installment_to_seller %}checked{% endif %}>
+        <span>Оплата частинами продавцю</span>
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <label class="checkbox-group">
+        <input type="checkbox" name="price_negotiable" onchange="autoSubmit()" {% if request.GET.price_negotiable %}checked{% endif %}>
+        <span>Торг</span>
+      </label>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="filters-top-bar">
+      <div class="active-filters-group">
+        <span class="filter-pill">Легкові <span class="remove">✕</span></span>
+        <span class="filter-pill">Авто в Україні <span class="remove">✕</span></span>
+        <span class="filter-pill">Розмитнені <span class="remove">✕</span></span>
+        <button class="clear-all-link">Очистити все</button>
+      </div>
+      <a class="advanced-search-link">Розширений пошук</a>
+    </div>
+
+    <div class="results-info-bar">
+      <span class="results-count">{{ advertisements.count }} пропозицій</span>
+      <select class="sort-select" name="sort">
+        <option value="-created_at">Нові спочатку</option>
+        <option value="created_at">Старі спочатку</option>
+        <option value="car_price">Ціна: за зростанням</option>
+        <option value="-car_price">Ціна: за спаданням</option>
+        <option value="-production_year">Рік: нові спочатку</option>
+      </select>
+    </div>
+
+    {% for ad in advertisements %}
+    <div class="car-card">
+      <div class="car-image-wrap">
+        <img src="{{ ad.car_image_url|default:'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop' }}" alt="{{ ad.car_brand }} {{ ad.car_model }}">
+        {% if ad.vin_code %}
+        <div class="badge-vin">Перевірений VIN</div>
+        {% endif %}
+      </div>
+      <div class="car-info">
+        <div class="car-header">
+          <div>
+            <a class="car-title" href="/advertisement/{{ ad.id }}/">{{ ad.car_brand }} {{ ad.car_model }} {{ ad.production_year }}</a>
+            <div class="car-subtitle">{{ ad.car_fuel_type }}</div>
+          </div>
+          <button class="fav-btn" data-ad-id="{{ ad.id }}" onclick="toggleFavorite(this)">♡</button>
+        </div>
+        <div class="price-block">
+          <span class="price-main">{{ ad.car_price }} {{ ad.currency }}</span>
+          <span class="price-uah">· {{ ad.car_price_uah }}</span>
+        </div>
+        <div class="car-meta">
+          <div class="meta-item"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> {{ ad.car_mileage }} тис. км</div>
+          <div class="meta-item"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 5l-1.4 1.4M6.3 17.7L4.9 19M2 12h2M20 12h2M17.7 17.7l1.4 1.4M4.9 4.9l1.4 1.4M12 2v2M12 20v2"/></svg> {{ ad.car_transmission }}</div>
+          <div class="meta-item"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg> {{ ad.car_fuel_type }}</div>
+          <div class="meta-item"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> {{ ad.car_city }}</div>
+        </div>
+        <div class="car-tags-row">
+          {% if ad.installment_available %}
+          <span class="tag-primary">Доступний кредит</span>
+          {% endif %}
+          {% if ad.price_negotiable %}
+          <span class="tag-secondary">Торг</span>
+          {% endif %}
+          {% if ad.exchange_available %}
+          <span class="tag-secondary">Обмін</span>
+          {% endif %}
+        </div>
+        <div class="car-desc">{{ ad.description|truncatewords:20 }}</div>
+        <div class="car-time">{{ ad.updated_at|timesince }} тому</div>
+      </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 40px; color: #777;">
+      Оголошень не знайдено
+    </div>
+    {% endfor %}
+
+  </main>
+</div>
+</form>
+
+{{ brand_to_models|json_script:"searchBrandToModelsData" }}
+{{ models|json_script:"searchAllModelsData" }}
+
+<script>
+function toggleFavorite(btn) {
+  const adId = btn.getAttribute('data-ad-id');
+  fetch(`/toggle-favorite/${adId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    btn.textContent = data.is_favorite ? '♥' : '♡';
+    btn.style.color = data.is_favorite ? '#e63c2f' : '#ccc';
+  });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function toggleFilter(filterName) {
+  const checkbox = document.getElementById(filterName);
+  checkbox.checked = !checkbox.checked;
+  autoSubmit();
+}
+
+function autoSubmit() {
+  const form = document.querySelector('form[method="GET"]');
+  form.submit();
+}
+
+// Initialize button state on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const importedCheckbox = document.getElementById('imported');
+  const importedBtn = document.querySelector('.btn-prigon');
+  if (importedCheckbox && importedBtn) {
+    if (importedCheckbox.checked) {
+      importedBtn.style.background = '#f5f5f5';
+      importedBtn.style.borderColor = '#256799';
+    }
+  }
+
+  // Initialize model options based on selected brand
+  updateSearchModelOptions();
+});
+
+// Dynamic model selection based on brand for search
+function updateSearchModelOptions() {
+  const brandToModels = JSON.parse(document.getElementById('searchBrandToModelsData').textContent);
+  const allModels = JSON.parse(document.getElementById('searchAllModelsData').textContent);
+  const carBrandSelect = document.getElementById("searchCarBrandSelect");
+  const carModelSelect = document.getElementById("searchCarModelSelect");
+
+  if (!carBrandSelect || !carModelSelect) return;
+
+  const selectedBrand = carBrandSelect.value;
+  const currentModelValue = carModelSelect.value;
+
+  carModelSelect.innerHTML = '<option value="">Модель</option>';
+
+  if (selectedBrand && brandToModels[selectedBrand]) {
+    brandToModels[selectedBrand].forEach(model => {
+      const option = document.createElement("option");
+      option.value = model;
+      option.textContent = model;
+      if (model === currentModelValue) {
+        option.selected = true;
+      }
+      carModelSelect.appendChild(option);
+    });
+  } else {
+    // If no brand selected, show all models
+    allModels.forEach(model => {
+      const option = document.createElement("option");
+      option.value = model;
+      option.textContent = model;
+      if (model === currentModelValue) {
+        option.selected = true;
+      }
+      carModelSelect.appendChild(option);
+    });
+  }
+}
+</script>
+
+<div class="floating-bottom-right">
+  <button class="btn-subscribe">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    Підписатись на пошук
+  </button>
+  <button class="btn-up">^</button>
+  <button class="btn-chat">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <div class="chat-dot"></div>
+  </button>
+</div>
+
+</body>
+</html>

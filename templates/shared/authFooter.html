@@ -1,0 +1,86 @@
+<footer class="auth-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>&copy; 2024 Auto.Ria. Всі права захищено.</p>
+                <p class="support">
+                    Підтримка:
+                    <a href="tel:+380674318229">(067) 431-82-29</a>,
+                    <a href="tel:+380931707740">(093) 170-77-40</a>,
+                    <a href="tel:+380504168688">(050) 416-86-88</a>
+                </p>
+                <p class="support">
+                    <a href="tel:0800210012">0-800-21-00-12</a>
+                </p>
+            </div>
+            <div class="footer-links">
+                <a href="/">Головна</a>
+                <a href="/about/">Про нас</a>
+                <a href="/contacts/">Контакти</a>
+                <a href="https://help.ria.com" target="_blank">Допомога</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.auth-footer {
+    background: #1a1a2e;
+    color: #aaa;
+    padding: 30px 0;
+    margin-top: 40px;
+    border-top: 1px solid #333;
+}
+.auth-footer .container {
+    max-width: 1272px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+.auth-footer .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.auth-footer .footer-info {
+    text-align: left;
+}
+.auth-footer .footer-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+.auth-footer .footer-info .support a {
+    color: #DB5C4C;
+    text-decoration: none;
+}
+.auth-footer .footer-info .support a:hover {
+    text-decoration: underline;
+}
+.auth-footer .footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.auth-footer .footer-links a {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+.auth-footer .footer-links a:hover {
+    color: #DB5C4C;
+}
+@media (max-width: 768px) {
+    .auth-footer .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .auth-footer .footer-info {
+        text-align: center;
+    }
+    .auth-footer .footer-links {
+        justify-content: center;
+    }
+}
+</style>

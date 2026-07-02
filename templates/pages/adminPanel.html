@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель</title>
+    <style>
+body  {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+    color: #1c2c3a;
+}
+
+.container  {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 16px 40px;
+}
+
+.topbar  {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.title  {
+    margin: 0;
+    font-size: 28px;
+}
+
+.hint  {
+    font-size: 14px;
+    color: #46637a;
+}
+
+.section  {
+    background: #fff;
+    border: 1px solid #d8e1e8;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+h2  {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.grid  {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input, textarea, select, button  {
+    font-family: inherit;
+    font-size: 14px;
+}
+
+input, textarea, select  {
+    width: 100%;
+    border: 1px solid #cad5df;
+    border-radius: 5px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+}
+
+textarea  {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.actions  {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+button  {
+    border: 0;
+    border-radius: 5px;
+    padding: 9px 12px;
+    cursor: pointer;
+}
+
+.btn-primary  {
+    background: #1764a7;
+    color: #fff;
+}
+
+.btn-danger  {
+    background: #d9534f;
+    color: #fff;
+}
+
+.btn-muted  {
+    background: #6c7f90;
+    color: #fff;
+}
+
+table  {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+th, td  {
+    border-bottom: 1px solid #e0e6eb;
+    text-align: left;
+    padding: 8px 6px;
+    vertical-align: top;
+}
+
+.status  {
+    margin-top: 10px;
+    color: #0a5a1d;
+    font-size: 14px;
+}
+
+.filters {
+    background: #e9ecef;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filters input, .filters select {
+    width: auto;
+    min-width: 150px;
+}
+
+.filters label {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.error  {
+    color: #a51818;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="topbar">
+        <h1 class="title">Адмін-панель</h1>
+        <div class="hint">Доступ тільки для JWT з <b>role=admin</b></div>
+    </div>
+
+    <div class="section">
+        <h2>Користувачі (CRUD)</h2>
+        <div class="filters">
+            <label>Фільтри:</label>
+            <input id="f_user_username" placeholder="Ім'я користувача" oninput="loadUsers()">
+            <input id="f_user_email" placeholder="Email" oninput="loadUsers()">
+            <select id="f_user_staff" onchange="loadUsers()">
+                <option value="">Всі ролі</option>
+                <option value="true">Staff</option>
+                <option value="false">Not Staff</option>
+            </select>
+        </div>
+        <input type="hidden" id="user_id">
+        <div class="grid">
+            <input id="username" placeholder="ім'я користувача">
+            <input id="first_name" placeholder="Ім'я">
+            <input id="last_name" placeholder="Прізвище">
+            <input id="email" placeholder="Email">
+            <input id="password" placeholder="Пароль (для створення/зміни)">
+            <select id="is_staff">
+                <option value="false">is_staff = false</option>
+                <option value="true">is_staff = true</option>
+            </select>
+            <select id="is_superuser">
+                <option value="false">is_superuser = false</option>
+                <option value="true">is_superuser = true</option>
+            </select>
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="saveUser()">Зберегти користувача</button>
+            <button class="btn-muted" onclick="resetUserForm()">Очистити форму</button>
+            <button class="btn-muted" onclick="loadUsers()">Оновити список</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ім'я користувача</th>
+                <th>Email</th>
+                <th>Staff/Superuser</th>
+                <th>Дії</th>
+            </tr>
+            </thead>
+            <tbody id="users_table"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Оголошення (CRUD)</h2>
+        <div class="filters">
+            <label>Фільтри:</label>
+            <input id="f_ad_brand" placeholder="Марка" oninput="loadAds()">
+            <input id="f_ad_model" placeholder="Модель" oninput="loadAds()">
+            <input id="f_ad_city" placeholder="Місто" oninput="loadAds()">
+            <input id="f_ad_user" placeholder="ID користувача" oninput="loadAds()">
+        </div>
+        <input type="hidden" id="ad_id">
+        <div class="grid">
+            <input id="car_brand" placeholder="Марка">
+            <input id="car_model" placeholder="Модель">
+            <input id="car_price" placeholder="Ціна" type="number">
+            <input id="car_city" placeholder="Місто">
+            <input id="car_image_url" placeholder="URL фото">
+            <textarea id="description" placeholder="Опис"></textarea>
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="saveAd()">Зберегти оголошення</button>
+            <button class="btn-muted" onclick="resetAdForm()">Очистити форму</button>
+            <button class="btn-muted" onclick="loadAds()">Оновити список</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Авто</th>
+                <th>Ціна</th>
+                <th>Місто</th>
+                <th>Дії</th>
+            </tr>
+            </thead>
+            <tbody id="ads_table"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Платежі</h2>
+        <div class="filters">
+            <label>Фільтри:</label>
+            <select id="f_pay_status" onchange="loadPayments()">
+                <option value="">Всі статуси</option>
+                <option value="created">Created</option>
+                <option value="success">Success</option>
+                <option value="failure">Failure</option>
+            </select>
+            <input id="f_pay_buyer" placeholder="ID покупця" oninput="loadPayments()">
+        </div>
+        <input type="hidden" id="pay_id">
+        <div class="grid">
+            <input id="pay_status" placeholder="Статус">
+            <input id="pay_amount" placeholder="Сума (коп)" type="number">
+            <input id="pay_buyer" placeholder="ID покупця" type="number">
+            <input id="pay_ad" placeholder="ID оголошення" type="number">
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="savePayment()">Зберегти платіж</button>
+            <button class="btn-muted" onclick="resetPaymentForm()">Очистити</button>
+            <button class="btn-muted" onclick="loadPayments()">Оновити</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Ref</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Buyer ID</th>
+                <th>Ad ID</th>
+                <th>Дії</th>
+            </tr>
+            </thead>
+            <tbody id="payments_table"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Покупки</h2>
+        <div class="filters">
+            <label>Фільтри:</label>
+            <input id="f_pur_user" placeholder="ID користувача" oninput="loadPurchases()">
+            <input id="f_pur_brand" placeholder="Марка" oninput="loadPurchases()">
+        </div>
+        <input type="hidden" id="pur_id">
+        <div class="grid">
+            <input id="pur_user" placeholder="ID користувача" type="number">
+            <input id="pur_pay" placeholder="UUID платежу">
+            <input id="pur_brand" placeholder="Марка">
+            <input id="pur_model" placeholder="Модель">
+            <input id="pur_price" placeholder="Ціна" type="number">
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="savePurchase()">Зберегти покупку</button>
+            <button class="btn-muted" onclick="resetPurchaseForm()">Очистити</button>
+            <button class="btn-muted" onclick="loadPurchases()">Оновити</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Auto</th>
+                <th>Price</th>
+                <th>Дії</th>
+            </tr>
+            </thead>
+            <tbody id="purchases_table"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Обране</h2>
+        <div class="filters">
+            <label>Фільтри:</label>
+            <input id="f_fav_user" placeholder="ID користувача" oninput="loadFavorites()">
+        </div>
+        <input type="hidden" id="fav_id">
+        <div class="grid">
+            <input id="fav_user" placeholder="ID користувача" type="number">
+            <input id="fav_ad" placeholder="ID оголошення" type="number">
+        </div>
+        <div class="actions">
+            <button class="btn-primary" onclick="saveFavorite()">Зберегти</button>
+            <button class="btn-muted" onclick="resetFavoriteForm()">Очистити</button>
+            <button class="btn-muted" onclick="loadFavorites()">Оновити</button>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Ad</th>
+                <th>Дії</th>
+            </tr>
+            </thead>
+            <tbody id="favorites_table"></tbody>
+        </table>
+    </div>
+
+    <div class="status" id="status"></div>
+</div>
+
+<script>
+    const USER_API = '/users/api/admin/users/';
+    const AD_API = '/users/api/admin/advertisements/';
+    const PAY_API = '/users/api/admin/payments/';
+    const PUR_API = '/users/api/admin/purchases/';
+    const FAV_API = '/users/api/admin/favorites/';
+
+    function showStatus(message, isError = false) {
+        const status = document.getElementById('status');
+        status.textContent = message;
+        status.className = isError ? 'status error' : 'status';
+    }
+
+    function parseJwt(token) {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch {
+            return null;
+        }
+    }
+
+    function getAccessToken() {
+        return localStorage.getItem('access');
+    }
+
+    function authHeaders() {
+        const token = getAccessToken();
+        if (!token) {
+            return null;
+        }
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+    }
+
+    function ensureAdminAccess() {
+        const token = getAccessToken();
+        if (!token) {
+            window.location.href = '/users/authPage/';
+            return false;
+        }
+        const payload = parseJwt(token);
+        if (!payload || payload.role !== 'admin') {
+            document.body.innerHTML = '<div style="padding:24px;font-family:Arial;">Недостатньо прав. Потрібна роль role=admin в JWT.</div>';
+            return false;
+        }
+        return true;
+    }
+
+    async function apiRequest(url, method = 'GET', body = null) {
+        const headers = authHeaders();
+        if (!headers) {
+            throw new Error('Відсутній access token');
+        }
+        const options = { method, headers };
+        if (body) {
+            options.body = JSON.stringify(body);
+        }
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(JSON.stringify(data));
+        }
+        return data;
+    }
+
+    function resetUserForm() {
+        document.getElementById('user_id').value = '';
+        document.getElementById('username').value = '';
+        document.getElementById('first_name').value = '';
+        document.getElementById('last_name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('is_staff').value = 'false';
+        document.getElementById('is_superuser').value = 'false';
+    }
+
+    async function loadUsers() {
+        const username = document.getElementById('f_user_username').value;
+        const email = document.getElementById('f_user_email').value;
+        const is_staff = document.getElementById('f_user_staff').value;
+        let url = `${USER_API}?`;
+        if (username) url += `username=${username}&`;
+        if (email) url += `email=${email}&`;
+        if (is_staff) url += `is_staff=${is_staff}&`;
+
+        try {
+            const users = await apiRequest(url, 'GET');
+            const table = document.getElementById('users_table');
+            table.innerHTML = '';
+            users.forEach((u) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.email || ''}</td>
+                    <td>${u.is_staff} / ${u.is_superuser}</td>
+                    <td></td>
+                `;
+                const actionsTd = tr.querySelector('td:last-child');
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-muted';
+                editBtn.textContent = 'Змінити';
+                editBtn.addEventListener('click', () => fillUserForm(u));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-danger';
+                deleteBtn.textContent = 'Видалити';
+                deleteBtn.style.marginLeft = '6px';
+                deleteBtn.addEventListener('click', () => deleteUser(u.id));
+
+                actionsTd.appendChild(editBtn);
+                // Не показуємо кнопку видалення для адмінів
+                if (!u.is_staff && !u.is_superuser) {
+                    actionsTd.appendChild(deleteBtn);
+                }
+                table.appendChild(tr);
+            });
+            showStatus('Список користувачів оновлено');
+        } catch (e) {
+            showStatus(`Помилка завантаження користувачів: ${e.message}`, true);
+        }
+    }
+
+    function fillUserForm(user) {
+        document.getElementById('user_id').value = user.id;
+        document.getElementById('username').value = user.username || '';
+        document.getElementById('first_name').value = user.first_name || '';
+        document.getElementById('last_name').value = user.last_name || '';
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('password').value = '';
+        document.getElementById('is_staff').value = String(user.is_staff);
+        document.getElementById('is_superuser').value = String(user.is_superuser);
+    }
+
+    async function saveUser() {
+        const id = document.getElementById('user_id').value;
+        const payload = {
+            username: document.getElementById('username').value,
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            email: document.getElementById('email').value,
+            is_staff: document.getElementById('is_staff').value === 'true',
+            is_superuser: document.getElementById('is_superuser').value === 'true',
+        };
+        const password = document.getElementById('password').value;
+        if (password) {
+            payload.password = password;
+        }
+        try {
+            if (id) {
+                await apiRequest(`${USER_API}${id}/`, 'PUT', payload);
+                showStatus('Користувач оновлений');
+            } else {
+                await apiRequest(USER_API, 'POST', payload);
+                showStatus('Користувач створений');
+            }
+            resetUserForm();
+            await loadUsers();
+        } catch (e) {
+            showStatus(`Помилка збереження користувача: ${e.message}`, true);
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('Видалити користувача?')) {
+            return;
+        }
+        try {
+            await apiRequest(`${USER_API}${id}/`, 'DELETE');
+            showStatus('Користувач видалений');
+            await loadUsers();
+        } catch (e) {
+            showStatus(`Помилка видалення користувача: ${e.message}`, true);
+        }
+    }
+
+    function resetAdForm() {
+        document.getElementById('ad_id').value = '';
+        document.getElementById('car_brand').value = '';
+        document.getElementById('car_model').value = '';
+        document.getElementById('car_price').value = '';
+        document.getElementById('car_city').value = '';
+        document.getElementById('car_image_url').value = '';
+        document.getElementById('description').value = '';
+    }
+
+    async function loadAds() {
+        const brand = document.getElementById('f_ad_brand').value;
+        const model = document.getElementById('f_ad_model').value;
+        const city = document.getElementById('f_ad_city').value;
+        const user = document.getElementById('f_ad_user').value;
+        let url = `${AD_API}?`;
+        if (brand) url += `car_brand=${brand}&`;
+        if (model) url += `car_model=${model}&`;
+        if (city) url += `car_city=${city}&`;
+        if (user) url += `user=${user}&`;
+
+        try {
+            const ads = await apiRequest(url, 'GET');
+            const table = document.getElementById('ads_table');
+            table.innerHTML = '';
+            ads.forEach((ad) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${ad.id}</td>
+                    <td>${ad.car_brand || ''} ${ad.car_model || ''}</td>
+                    <td>${ad.car_price || 0}</td>
+                    <td>${ad.car_city || ''}</td>
+                    <td></td>
+                `;
+                const actionsTd = tr.querySelector('td:last-child');
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-muted';
+                editBtn.textContent = 'Змінити';
+                editBtn.addEventListener('click', () => fillAdForm(ad));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-danger';
+                deleteBtn.textContent = 'Видалити';
+                deleteBtn.style.marginLeft = '6px';
+                deleteBtn.addEventListener('click', () => deleteAd(ad.id));
+
+                actionsTd.appendChild(editBtn);
+                actionsTd.appendChild(deleteBtn);
+                table.appendChild(tr);
+            });
+            showStatus('Список оголошень оновлено');
+        } catch (e) {
+            showStatus(`Помилка завантаження оголошень: ${e.message}`, true);
+        }
+    }
+
+    function fillAdForm(ad) {
+        document.getElementById('ad_id').value = ad.id;
+        document.getElementById('car_brand').value = ad.car_brand || '';
+        document.getElementById('car_model').value = ad.car_model || '';
+        document.getElementById('car_price').value = ad.car_price || 0;
+        document.getElementById('car_city').value = ad.car_city || '';
+        document.getElementById('car_image_url').value = ad.car_image_url || '';
+        document.getElementById('description').value = ad.description || '';
+    }
+
+    async function saveAd() {
+        const id = document.getElementById('ad_id').value;
+        const payload = {
+            car_brand: document.getElementById('car_brand').value,
+            car_model: document.getElementById('car_model').value,
+            car_price: Number(document.getElementById('car_price').value || 0),
+            car_city: document.getElementById('car_city').value,
+            car_image_url: document.getElementById('car_image_url').value,
+            description: document.getElementById('description').value,
+            terms_accepted: true,
+        };
+        try {
+            if (id) {
+                await apiRequest(`${AD_API}${id}/`, 'PUT', payload);
+                showStatus('Оголошення оновлено');
+            } else {
+                await apiRequest(AD_API, 'POST', payload);
+                showStatus('Оголошення створено');
+            }
+            resetAdForm();
+            await loadAds();
+        } catch (e) {
+            showStatus(`Помилка збереження оголошення: ${e.message}`, true);
+        }
+    }
+
+    async function deleteAd(id) {
+        if (!confirm('Видалити оголошення?')) {
+            return;
+        }
+        try {
+            await apiRequest(`${AD_API}${id}/`, 'DELETE');
+            showStatus('Оголошення видалено');
+            await loadAds();
+        } catch (e) {
+            showStatus(`Помилка видалення оголошення: ${e.message}`, true);
+        }
+    }
+
+    // --- Payments ---
+    function resetPaymentForm() {
+        document.getElementById('pay_id').value = '';
+        document.getElementById('pay_status').value = '';
+        document.getElementById('pay_amount').value = '';
+        document.getElementById('pay_buyer').value = '';
+        document.getElementById('pay_ad').value = '';
+    }
+
+    async function loadPayments() {
+        const status = document.getElementById('f_pay_status').value;
+        const buyer = document.getElementById('f_pay_buyer').value;
+        let url = `${PAY_API}?`;
+        if (status) url += `status=${status}&`;
+        if (buyer) url += `buyer=${buyer}&`;
+
+        try {
+            const payments = await apiRequest(url, 'GET');
+            const table = document.getElementById('payments_table');
+            table.innerHTML = '';
+            payments.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.reference}</td>
+                    <td>${p.status}</td>
+                    <td>${p.amount}</td>
+                    <td>${p.buyer || ''}</td>
+                    <td>${p.advertisement || ''}</td>
+                    <td></td>
+                `;
+                const actionsTd = tr.querySelector('td:last-child');
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-muted';
+                editBtn.textContent = 'Змінити';
+                editBtn.onclick = () => fillPaymentForm(p);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-danger';
+                delBtn.textContent = 'Видалити';
+                delBtn.style.marginLeft = '6px';
+                delBtn.onclick = () => deletePayment(p.reference);
+
+                actionsTd.appendChild(editBtn);
+                actionsTd.appendChild(delBtn);
+                table.appendChild(tr);
+            });
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    function fillPaymentForm(p) {
+        document.getElementById('pay_id').value = p.reference;
+        document.getElementById('pay_status').value = p.status;
+        document.getElementById('pay_amount').value = p.amount;
+        document.getElementById('pay_buyer').value = p.buyer || '';
+        document.getElementById('pay_ad').value = p.advertisement || '';
+    }
+
+    async function savePayment() {
+        const id = document.getElementById('pay_id').value;
+        const payload = {
+            status: document.getElementById('pay_status').value,
+            amount: Number(document.getElementById('pay_amount').value),
+            buyer: document.getElementById('pay_buyer').value || null,
+            advertisement: document.getElementById('pay_ad').value || null,
+        };
+        try {
+            if (id) await apiRequest(`${PAY_API}${id}/`, 'PUT', payload);
+            else await apiRequest(PAY_API, 'POST', payload);
+            resetPaymentForm(); await loadPayments();
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    async function deletePayment(id) {
+        if (confirm('Видалити?')) {
+            await apiRequest(`${PAY_API}${id}/`, 'DELETE');
+            await loadPayments();
+        }
+    }
+
+    // --- Purchases ---
+    function resetPurchaseForm() {
+        document.getElementById('pur_id').value = '';
+        document.getElementById('pur_user').value = '';
+        document.getElementById('pur_pay').value = '';
+        document.getElementById('pur_brand').value = '';
+        document.getElementById('pur_model').value = '';
+        document.getElementById('pur_price').value = '';
+    }
+
+    async function loadPurchases() {
+        const user = document.getElementById('f_pur_user').value;
+        const brand = document.getElementById('f_pur_brand').value;
+        let url = `${PUR_API}?`;
+        if (user) url += `user=${user}&`;
+        if (brand) url += `car_brand=${brand}&`;
+
+        try {
+            const items = await apiRequest(url, 'GET');
+            const table = document.getElementById('purchases_table');
+            table.innerHTML = '';
+            items.forEach(i => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i.id}</td>
+                    <td>${i.user}</td>
+                    <td>${i.car_brand} ${i.car_model}</td>
+                    <td>${i.car_price}</td>
+                    <td></td>
+                `;
+                const actionsTd = tr.querySelector('td:last-child');
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-muted';
+                editBtn.textContent = 'Змінити';
+                editBtn.onclick = () => fillPurchaseForm(i);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-danger';
+                delBtn.textContent = 'Видалити';
+                delBtn.style.marginLeft = '6px';
+                delBtn.onclick = () => deletePurchase(i.id);
+
+                actionsTd.appendChild(editBtn);
+                actionsTd.appendChild(delBtn);
+                table.appendChild(tr);
+            });
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    function fillPurchaseForm(i) {
+        document.getElementById('pur_id').value = i.id;
+        document.getElementById('pur_user').value = i.user;
+        document.getElementById('pur_pay').value = i.payment;
+        document.getElementById('pur_brand').value = i.car_brand;
+        document.getElementById('pur_model').value = i.car_model;
+        document.getElementById('pur_price').value = i.car_price;
+    }
+
+    async function savePurchase() {
+        const id = document.getElementById('pur_id').value;
+        const payload = {
+            user: document.getElementById('pur_user').value,
+            payment: document.getElementById('pur_pay').value,
+            car_brand: document.getElementById('pur_brand').value,
+            car_model: document.getElementById('pur_model').value,
+            car_price: Number(document.getElementById('pur_price').value),
+        };
+        try {
+            if (id) await apiRequest(`${PUR_API}${id}/`, 'PUT', payload);
+            else await apiRequest(PUR_API, 'POST', payload);
+            resetPurchaseForm(); await loadPurchases();
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    async function deletePurchase(id) {
+        if (confirm('Видалити?')) {
+            await apiRequest(`${PUR_API}${id}/`, 'DELETE');
+            await loadPurchases();
+        }
+    }
+
+    // --- Favorites ---
+    function resetFavoriteForm() {
+        document.getElementById('fav_id').value = '';
+        document.getElementById('fav_user').value = '';
+        document.getElementById('fav_ad').value = '';
+    }
+
+    async function loadFavorites() {
+        const user = document.getElementById('f_fav_user').value;
+        let url = `${FAV_API}?`;
+        if (user) url += `user=${user}&`;
+
+        try {
+            const items = await apiRequest(url, 'GET');
+            const table = document.getElementById('favorites_table');
+            table.innerHTML = '';
+            items.forEach(i => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i.id}</td>
+                    <td>${i.username} (${i.user})</td>
+                    <td>${i.ad_title} (${i.advertisement})</td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteFavorite(${i.id})">Видалити</button>
+                    </td>
+                `;
+                table.appendChild(tr);
+            });
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    async function saveFavorite() {
+        const payload = {
+            user: document.getElementById('fav_user').value,
+            advertisement: document.getElementById('fav_ad').value,
+        };
+        try {
+            await apiRequest(FAV_API, 'POST', payload);
+            resetFavoriteForm(); await loadFavorites();
+        } catch (e) { showStatus(`Помилка: ${e.message}`, true); }
+    }
+
+    async function deleteFavorite(id) {
+        if (confirm('Видалити?')) {
+            await apiRequest(`${FAV_API}${id}/`, 'DELETE');
+            await loadFavorites();
+        }
+    }
+
+    (async function init() {
+        if (!ensureAdminAccess()) {
+            return;
+        }
+        await loadUsers();
+        await loadAds();
+        await loadPayments();
+        await loadPurchases();
+        await loadFavorites();
+    })();
+</script>
+</body>
+</html>
