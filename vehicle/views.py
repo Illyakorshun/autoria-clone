@@ -7,14 +7,14 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from .models import Vehicle, Favorite
+from .models import Vehicle, Favorite, VehicleImage
 import json
 import os
 
 
 def vehicle_list(request):
-    """Список всіх авто"""
-    vehicles = Vehicle.objects.filter(is_active=True, is_moderated=True)
+    """Список ВЖИВАНИХ авто (is_new=False)"""
+    vehicles = Vehicle.objects.filter(is_active=True, is_moderated=True, is_new=False)
 
     # Фільтри
     brand = request.GET.get('brand')
@@ -65,9 +65,22 @@ def vehicle_list(request):
     })
 
 
+def new_vehicles(request):
+    """Список НОВИХ авто (is_new=True)"""
+    vehicles = Vehicle.objects.filter(is_active=True, is_moderated=True, is_new=True)
+
+    paginator = Paginator(vehicles, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pages/new_vehicles.html', {
+        'vehicles': page_obj,
+    })
+
+
 def vehicle_detail(request, pk):
     """Детальна сторінка авто"""
-    vehicle = get_object_or_404(Vehicle, pk=pk, is_active=True)
+    vehicle = get_object_or_404(Vehicle, pk=pk)
 
     # Збільшуємо кількість переглядів
     vehicle.views += 1
@@ -78,9 +91,22 @@ def vehicle_detail(request, pk):
     if request.user.is_authenticated:
         is_favorite = Favorite.objects.filter(user=request.user, vehicle=vehicle).exists()
 
+    # Схожі авто (ті ж бренд або модель)
+    similar_vehicles = Vehicle.objects.filter(
+        Q(brand=vehicle.brand) | Q(model=vehicle.model),
+        is_active=True,
+        is_moderated=True
+    ).exclude(id=vehicle.id)[:4]
+
+    # Розраховуємо ціну в гривнях (курс 41.5)
+    usd_rate = 41.5
+    price_uah = int(float(vehicle.price) * usd_rate)
+
     return render(request, 'pages/vehicle_detail.html', {
         'vehicle': vehicle,
         'is_favorite': is_favorite,
+        'similar_vehicles': similar_vehicles,
+        'price_uah': price_uah,
     })
 
 
@@ -124,26 +150,44 @@ def add_vehicle(request):
             vehicle.year = int(request.POST.get('year'))
             vehicle.price = float(request.POST.get('price'))
             vehicle.mileage = int(request.POST.get('mileage')) if request.POST.get('mileage') else None
-            vehicle.fuel_type = request.POST.get('fuel_type')
-            vehicle.transmission = request.POST.get('transmission')
-            vehicle.body_type = request.POST.get('body_type')
-            vehicle.drive_type = request.POST.get('drive_type')
-            vehicle.engine_volume = float(request.POST.get('engine_volume')) if request.POST.get(
-                'engine_volume') else None
+            vehicle.fuel_type = request.POST.get('fuel_type', 'BENZIN')
+            vehicle.transmission = request.POST.get('transmission', 'MANUAL')
+            vehicle.body_type = request.POST.get('body_type', 'SEDAN')
+            vehicle.drive_type = request.POST.get('drive_type', 'FRONT')
+            vehicle.engine_volume = float(request.POST.get('engine_volume')) if request.POST.get('engine_volume') else None
             vehicle.engine_power = int(request.POST.get('engine_power')) if request.POST.get('engine_power') else None
             vehicle.color = request.POST.get('color')
             vehicle.description = request.POST.get('description')
+            vehicle.is_new = request.POST.get('is_new') == 'on'
 
-            # Обробка фото
+            # VIN та історія
+            vehicle.vin_code = request.POST.get('vin_code', '').upper().strip()
+            vehicle.owners_count = int(request.POST.get('owners_count', 1))
+            vehicle.has_accident = request.POST.get('has_accident') == 'on'
+            vehicle.imported_from = request.POST.get('imported_from', '')
+
+            # Зберігаємо головне фото
             if request.FILES.get('main_image'):
                 vehicle.main_image = request.FILES['main_image']
 
+            vehicle.is_active = True
+            vehicle.is_moderated = True
             vehicle.save()
+
+            # Зберігаємо додаткові фото
+            images = request.FILES.getlist('images')
+            for i, img in enumerate(images):
+                VehicleImage.objects.create(
+                    vehicle=vehicle,
+                    image=img,
+                    order=i
+                )
 
             messages.success(request, 'Автомобіль додано успішно!')
             return redirect('vehicle:vehicle_detail', pk=vehicle.id)
         except Exception as e:
             messages.error(request, f'Помилка: {str(e)}')
+            return render(request, 'pages/add_vehicle.html', {'error': str(e)})
 
     return render(request, 'pages/add_vehicle.html')
 
@@ -164,11 +208,11 @@ def edit_vehicle(request, pk):
             vehicle.transmission = request.POST.get('transmission')
             vehicle.body_type = request.POST.get('body_type')
             vehicle.drive_type = request.POST.get('drive_type')
-            vehicle.engine_volume = float(request.POST.get('engine_volume')) if request.POST.get(
-                'engine_volume') else None
+            vehicle.engine_volume = float(request.POST.get('engine_volume')) if request.POST.get('engine_volume') else None
             vehicle.engine_power = int(request.POST.get('engine_power')) if request.POST.get('engine_power') else None
             vehicle.color = request.POST.get('color')
             vehicle.description = request.POST.get('description')
+            vehicle.is_new = request.POST.get('is_new') == 'on'
 
             if request.FILES.get('main_image'):
                 vehicle.main_image = request.FILES['main_image']
@@ -199,7 +243,6 @@ def api_vehicle_list(request):
     """API - список авто"""
     vehicles = Vehicle.objects.filter(is_active=True, is_moderated=True)
 
-    # Фільтри
     brand = request.GET.get('brand')
     model = request.GET.get('model')
     if brand:
@@ -267,23 +310,20 @@ def api_load_data(request):
         return JsonResponse({'error': 'Метод не дозволений'}, status=405)
 
     try:
-        import json
         from django.contrib.auth import get_user_model
         User = get_user_model()
 
-        # Отримуємо адміна
         admin = User.objects.filter(is_admin=True).first()
         if not admin:
             return JsonResponse({'error': 'Адміна не знайдено'}, status=404)
 
-        # Читаємо JSON
         json_path = os.path.join(os.path.dirname(__file__), 'assets', 'cars.json')
         with open(json_path, 'r', encoding='utf-8') as f:
             cars_data = json.load(f)
 
         count = 0
         for car_data in cars_data:
-            car = Vehicle.objects.create(
+            Vehicle.objects.create(
                 user=admin,
                 brand=car_data.get('brand'),
                 model=car_data.get('model'),

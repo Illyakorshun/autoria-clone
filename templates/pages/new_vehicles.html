@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Нові авто - Auto.Ria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>🆕 Нові автомобілі</h1>
+
+    <div class="row">
+        {% for vehicle in vehicles %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm vehicle-card">
+                <div class="card-img-top" style="height: 200px; background: #f5f5f5; overflow: hidden; position: relative;">
+                    {% if vehicle.main_image %}
+                        <img src="{{ vehicle.main_image.url }}" alt="{{ vehicle.brand }} {{ vehicle.model }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No image" style="width:100%; height:100%; object-fit:cover;">
+                    {% endif %}
+                    <span style="position:absolute; top:10px; left:10px; background:#70c900; color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold;">🆕 Нове</span>
+                </div>
+
+                <div class="card-body">
+                    <a href="{% url 'vehicle:vehicle_detail' vehicle.id %}" class="card-title" style="font-size:18px; font-weight:700; color:#0b2e59; text-decoration:none;">
+                        {{ vehicle.brand }} {{ vehicle.model }}
+                    </a>
+                    <div class="price-block" style="margin: 8px 0;">
+                        <span style="color:#00a046; font-size:22px; font-weight:700;">{{ vehicle.price }}$</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:13px; color:#666;">
+                        <span>📅 {{ vehicle.year }}</span>
+                        <span>🔢 {{ vehicle.mileage|default:"0" }} км</span>
+                        <span>⛽ {{ vehicle.get_fuel_type_display|default:"-" }}</span>
+                        <span>⚙ {{ vehicle.get_transmission_display|default:"-" }}</span>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent border-top-0" style="padding:10px 15px;">
+                    <a href="{% url 'vehicle:vehicle_detail' vehicle.id %}" class="btn btn-outline-primary w-100">Детальніше</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p style="font-size:18px; color:#999;">🆕 Нових автомобілів поки немає</p>
+            <a href="/vehicle/add/" class="btn btn-success">Додати нове авто</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .vehicle-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .vehicle-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    .vehicle-card .card-title:hover {
+        text-decoration: underline !important;
+    }
+</style>
+{% endblock %}

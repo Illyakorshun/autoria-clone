@@ -292,13 +292,6 @@ a:hover { text-decoration: underline; }
     border: 1px solid #c8e6c9;
 }
 
-#register-form {
-    display: none;
-    margin-top: 20px;
-    border-top: 1px solid #e0e3e4;
-    padding-top: 20px;
-}
-
 #login-block {
     display: block;
 }
@@ -399,7 +392,7 @@ a:hover { text-decoration: underline; }
                 </div>
             </div>
 
-            <!-- Блок реєстрації -->
+            <!-- Блок реєстрації з полем телефону -->
             <div id="register-block">
                 <h1 class="auth-title">Реєстрація на сайті <span class="brand">AUTO.RIA</span></h1>
 
@@ -418,6 +411,11 @@ a:hover { text-decoration: underline; }
                     </div>
                     <div class="input-wrap">
                         <input class="field" type="text" name="last_name" placeholder="Прізвище">
+                    </div>
+                    <!-- НОВЕ ПОЛЕ - ТЕЛЕФОН -->
+                    <div class="input-wrap">
+                        <input class="field" type="tel" name="phone" placeholder="Номер телефону" required>
+                        <span class="field-icon">📱</span>
                     </div>
                     <div class="input-wrap">
                         <input class="field" type="email" name="email" placeholder="Email" required>

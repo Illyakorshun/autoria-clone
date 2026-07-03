@@ -1,1241 +1,169 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ advertisement.car_model }} — AUTO.RIA.com</title>
-    <style>
-*  {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+{% extends "base.html" %}
+{% load static %}
 
-body  {
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-    background-color: #ffffff;
-    color: #333333;
-    line-height: 1.5;
-    font-size: 14px;
-}
+{% block title %}Вживані авто - Auto.Ria{% endblock %}
 
-a  {
-    text-decoration: none;
-    color: #256799;
-}
+{% block content %}
+<div class="container mt-3">
 
-a:hover  {
-    text-decoration: underline;
-}
-
-ul  {
-    list-style: none;
-}
-
-.wrapper  {
-    width: 1272px;
-    margin: 0 auto;
-    padding: 0;
-}
-
-/* Breadcrumbs */ .breadcrumbs  {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    font-size: 13px;
-    padding: 14px 0;
-    color: #999;
-    gap: 2px;
-}
-
-.breadcrumbs a  {
-    color: #666;
-}
-
-.breadcrumbs .sep  {
-    margin: 0 4px;
-    color: #bbb;
-}
-
-.breadcrumbs .current  {
-    color: #333;
-    font-weight: 600;
-}
-
-/* Layout */ .listing-layout  {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-}
-
-.main-content  {
-    flex: 1;
-    min-width: 0;
-}
-
-.sidebar  {
-    width: 360px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 20px;
-}
-
-/* Gallery */ .gallery  {
-    margin-bottom: 20px;
-}
-
-.gallery-main  {
-    position: relative;
-    width: 100%;
-    height: 540px;
-    background: #111;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.gallery-main img  {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.gallery-counter  {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    background: rgba(0,0,0,0.55);
-    color: #fff;
-    font-size: 12px;
-    padding: 3px 8px;
-    border-radius: 10px;
-}
-
-.gallery-nav  {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.4);
-    color: white;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    font-size: 26px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.gallery-nav.prev  {
-    left: 10px;
-}
-
-.gallery-nav.next  {
-    right: 10px;
-}
-
-.gallery-nav:hover  {
-    background: rgba(0,0,0,0.75);
-}
-
-.gallery-fullscreen  {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.45);
-    border: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.gallery-thumbs  {
-    display: flex;
-    gap: 4px;
-    margin-top: 4px;
-    overflow: hidden;
-}
-
-.thumb-btn  {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 72px;
-    padding: 0;
-    border: none;
-    border-radius: 3px;
-    overflow: hidden;
-    cursor: pointer;
-    opacity: 0.65;
-    transition: opacity 0.2s;
-    background: none;
-}
-
-.thumb-btn:hover  {
-    opacity: 1;
-}
-
-.thumb-btn.active  {
-    opacity: 1;
-    outline: 2px solid #256799;
-}
-
-.gallery-thumbs img  {
-    width: 100%;
-    height: 72px;
-    object-fit: cover;
-    display: block;
-}
-
-/* Car title + price under gallery */ .car-title  {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    margin-top: 4px;
-}
-
-.price-row  {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.price-usd  {
-    font-size: 22px;
-    font-weight: 700;
-    color: #00a046;
-}
-
-.price-uah  {
-    font-size: 14px;
-    color: #333;
-}
-
-.price-dot  {
-    color: #999;
-}
-
-.average-price  {
-    font-size: 13px;
-    color: #256799;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-/* Credit block */ .credit-row  {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 14px;
-    cursor: pointer;
-}
-
-.credit-row img  {
-    width: 22px;
-    height: 22px;
-}
-
-.credit-link  {
-    color: #256799;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-.credit-link:hover  {
-    text-decoration: underline;
-}
-
-/* Specs */ .specs-row  {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: #333;
-    align-items: center;
-}
-
-.spec-item  {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #333;
-}
-
-.spec-item svg  {
-    flex-shrink: 0;
-}
-
-.location-info  {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 14px;
-}
-
-/* Tags */ .tags  {
-    margin-bottom: 20px;
-}
-
-.tag  {
-    display: inline-block;
-    padding: 4px 12px;
-    border: 1px solid #c8c8c8;
-    border-radius: 14px;
-    font-size: 12px;
-    color: #555;
-}
-
-/* Description */ .description-section h2  {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.description-section p  {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.65;
-    margin-bottom: 8px;
-}
-
-.read-more  {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.read-more:hover  {
-    text-decoration: underline;
-}
-
-/* ===================== OPTIONS / SPECS SECTION ===================== */
-.options-section  {
-    margin-top: 28px;
-    margin-bottom: 28px;
-    padding-top: 20px;
-    border-top: 1px solid #ececec;
-}
-
-.options-grid  {
-    display: flex;
-    gap: 60px;
-    margin-bottom: 20px;
-}
-
-.options-col  {
-    flex: 1;
-    min-width: 0;
-}
-
-.option-item  {
-    margin-bottom: 22px;
-}
-
-.option-item:last-child  {
-    margin-bottom: 0;
-}
-
-.option-label  {
-    font-size: 13px;
-    color: #999;
-    margin-bottom: 4px;
-}
-
-.option-value  {
-    font-size: 15px;
-    color: #1a1a1a;
-    font-weight: 500;
-    line-height: 1.45;
-}
-
-.option-value.stacked > div  {
-    margin-bottom: 4px;
-}
-
-.option-value.stacked > div:last-child  {
-    margin-bottom: 0;
-}
-
-.inspection-row  {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.inspection-row a  {
-    color: #256799;
-    text-decoration: underline;
-    font-weight: 700;
-}
-
-.inspection-row .discount  {
-    color: #e63c2f;
-    font-weight: 700;
-}
-
-.extra-options  {
-    display: none;
-}
-
-.options-section.expanded .extra-options  {
-    display: block;
-}
-
-.btn-toggle-options  {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 280px;
-    padding: 14px 0;
-    background-color: #ffffff;
-    border: 1.5px solid #d4d4d4;
-    border-radius: 26px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #222;
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
-}
-
-.btn-toggle-options:hover  {
-    border-color: #999;
-    background-color: #fafafa;
-}
-
-/* ===================== SIDEBAR ===================== */ .sidebar-title-row  {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 6px;
-}
-
-.sidebar-title  {
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.3;
-}
-
-.btn-like  {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px;
-    flex-shrink: 0;
-}
-
-.sidebar-price  {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-bottom: 14px;
-}
-
-.sidebar-price .usd  {
-    font-size: 22px;
-    font-weight: 700;
-    color: #00a046;
-}
-
-.sidebar-price .sep  {
-    color: #bbb;
-}
-
-.sidebar-price .uah  {
-    font-size: 14px;
-    color: #555;
-}
-
-/* Seller box */ .seller-box  {
-    background-color: #e8f3f9;
-    border-radius: 8px;
-    padding: 14px 16px;
-}
-
-.seller-header  {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    text-decoration: none !important;
-    color: inherit;
-}
-
-.seller-avatar  {
-    width: 44px;
-    height: 44px;
-    background: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.seller-info  {
-    display: flex;
-    flex-direction: column;
-}
-
-.seller-type  {
-    font-size: 12px;
-    color: #256799;
-    margin-bottom: 3px;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.seller-name  {
-    font-size: 15px;
-    font-weight: 700;
-    color: #222;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.verified  {
-    width: 16px;
-    height: 16px;
-    background: #00a046;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.seller-stats  {
-    margin-bottom: 14px;
-}
-
-.seller-stats li  {
-    font-size: 13px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 7px;
-}
-
-.seller-stats li a  {
-    color: #333;
-}
-
-.seller-stats li a:hover  {
-    color: #256799;
-}
-
-.btn-phone  {
-    width: 100%;
-    background-color: #00a046;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 13px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    letter-spacing: 0.3px;
-}
-
-.btn-phone:hover  {
-    background-color: #00923f;
-}
-
-.btn-buy  {
-    width: 100%;
-    background-color: #e63c2f;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 13px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    letter-spacing: 0.3px;
-    margin-top: 10px;
-    display: block;
-    text-align: center;
-}
-
-.btn-buy:hover  {
-    background-color: #d02a2a;
-    text-decoration: none;
-}
-
-.btn-admin-access {
-    width: 100%;
-    background-color: #ff5a3c;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 13px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    letter-spacing: 0.3px;
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-decoration: none;
-}
-
-.btn-admin-access:hover {
-    background-color: #e04b2f;
-    text-decoration: none;
-    color: #ffffff;
-}
-
-.btn-admin-access svg {
-    width: 18px;
-    height: 18px;
-    fill: #ffffff;
-}
-
-/* ===================== SELLER CAROUSEL ===================== */
-.seller-carousel-section {
-    max-width: 1240px;
-    margin: 36px auto 0;
-    margin-bottom: 100px;
-    padding-top: 24px;
-    border-top: 1px solid #ececec;
-}
-
-.seller-carousel-heading {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 18px;
-}
-
-.seller-carousel-viewport {
-    width: 1240px;
-    overflow: hidden;
-    position: relative;
-}
-
-.seller-carousel-track {
-    display: flex;
-    gap: 20px;
-    transition: transform 0.35s ease;
-    will-change: transform;
-}
-
-.seller-carousel-card {
-    flex: 0 0 400px;
-    width: 400px;
-    height: 436px;
-    border: 1px solid #e4e4e4;
-    border-radius: 8px;
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    transition: box-shadow 0.2s, border-color 0.2s;
-    cursor: pointer;
-}
-
-.seller-carousel-card:hover {
-    box-shadow: 0 4px 18px rgba(0,0,0,0.10);
-    border-color: #c0c0c0;
-    text-decoration: none;
-}
-
-.seller-card-img-wrap {
-    width: 400px;
-    height: 260px;
-    overflow: hidden;
-    flex-shrink: 0;
-    position: relative;
-    background: #f0f0f0;
-}
-
-.seller-card-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.seller-carousel-card:hover .seller-card-img-wrap img {
-    transform: scale(1.03);
-}
-
-.seller-card-source-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255,255,255,0.92);
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #e63c2f;
-    letter-spacing: 0.3px;
-}
-
-.seller-card-body {
-    padding: 14px 16px 16px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.seller-card-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.seller-card-specs {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 6px;
-    line-height: 1.6;
-}
-
-.seller-card-specs span + span::before {
-    content: "•";
-    margin-right: 6px;
-    color: #bbb;
-}
-
-.seller-card-price {
-    margin-top: auto;
-    font-size: 18px;
-    font-weight: 700;
-    color: #00a046;
-}
-
-.seller-card-price.old-price {
-    color: #999;
-    text-decoration: line-through;
-    font-size: 14px;
-    margin-bottom: 2px;
-    font-weight: 400;
-}
-
-.seller-card-price-wrap {
-    margin-top: auto;
-}
-
-.seller-card-price-new {
-    font-size: 18px;
-    font-weight: 700;
-    color: #e63c2f;
-}
-
-/* Carousel nav buttons */
-.seller-carousel-nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1.5px solid #d4d4d4;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    font-size: 22px;
-    color: #333;
-    user-select: none;
-}
-
-.seller-carousel-nav-btn:hover {
-    border-color: #888;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-}
-
-.seller-carousel-nav-btn:disabled {
-    opacity: 0.3;
-    cursor: default;
-    pointer-events: none;
-}
-
-.seller-carousel-nav-btn.prev-btn {
-    left: -22px;
-}
-
-.seller-carousel-nav-btn.next-btn {
-    right: -22px;
-}
-
-.seller-carousel-outer {
-    position: relative;
-}
-    </style>
-</head>
-<body>
-{% include 'shared/header.html' %}
-<div class="wrapper">
-    <nav class="breadcrumbs">
-        <a href="/">AUTO.RIA.com</a>
-        <span class="sep">›</span>
-        {% if advertisement.region %}
-            <a href="#">{{ advertisement.region }}</a>
-            <span class="sep">›</span>
-        {% endif %}
-        <a href="#">{{ advertisement.car_city }}</a>
-        <span class="sep">›</span>
-        <a href="#">{{ advertisement.car_brand }}</a>
-        <span class="sep">›</span>
-        <a href="#">{{ advertisement.car_model }}</a>
-        <span class="sep">›</span>
-        <span class="current">{{ advertisement.car_model }} {{ advertisement.car_city }}</span>
-    </nav>
-
-    <div class="listing-layout">
-
-        <main class="main-content">
-            <div class="gallery">
-                <div class="gallery-main" id="mainImg">
-                    <img id="mainPhoto" src="{{ advertisement.car_image_url }}" alt="{{ advertisement.car_model }}">
-                    <button class="gallery-nav prev" onclick="changePhoto(-1)">‹</button>
-                    <button class="gallery-nav next" onclick="changePhoto(1)">›</button>
-                    <span class="gallery-counter" id="counter">1 / 6</span>
-                    <button class="gallery-fullscreen">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                    </button>
-                </div>
-                <div class="gallery-thumbs" id="thumbs">
-                    {% if advertisement.additional_images %}
-                        {% for img_url in advertisement.additional_images %}
-                            <button class="thumb-btn {% if forloop.first %}active{% endif %}" onclick="setPhoto({{ forloop.index0 }},this)">
-                                <img src="{{ img_url }}">
-                            </button>
-                        {% endfor %}
-                    {% else %}
-                        <button class="thumb-btn active" onclick="setPhoto(0,this)"><img src="{{ advertisement.car_image_url }}"></button>
-                        <button class="thumb-btn" onclick="setPhoto(1,this)"><img src="{{ advertisement.car_image_url }}1"></button>
-                        <button class="thumb-btn" onclick="setPhoto(2,this)"><img src="{{ advertisement.car_image_url }}2"></button>
-                        <button class="thumb-btn" onclick="setPhoto(3,this)"><img src="{{ advertisement.car_image_url }}3"></button>
-                        <button class="thumb-btn" onclick="setPhoto(4,this)"><img src="{{ advertisement.car_image_url }}4"></button>
-                        <button class="thumb-btn" onclick="setPhoto(5,this)"><img src="{{ advertisement.car_image_url }}5"></button>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="car-details">
-                <h1 class="car-title">{{ advertisement.car_model }}</h1>
-
-                <div class="price-row">
-                    <span class="price-usd">{{ advertisement.car_price }} $</span>
-                    <span class="price-dot">•</span>
-                    <span class="price-uah">{{ advertisement.car_price_uah }} грн</span>
-                    <span class="price-dot">•</span>
-                    <a href="#" class="average-price">
-                        Середня ціна
-                        <svg width="16" height="14" viewBox="0 0 24 18" fill="#256799"><rect x="0" y="10" width="5" height="8"/><rect x="7" y="6" width="5" height="12"/><rect x="14" y="2" width="5" height="16"/></svg>
-                    </a>
-                </div>
-
-                <div class="credit-row">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                    <a href="#" class="credit-link">від {{ advertisement.car_price|floatformat:0|add:1000 }} грн/міс <span style="font-size:16px">›</span></a>
-                </div>
-
-                <div class="specs-row">
-                    <div class="spec-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                        {{ advertisement.car_mileage }} км
-                    </div>
-                    <div class="spec-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                        {{ advertisement.car_transmission }}
-                    </div>
-                    <div class="spec-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M3 22s1-1 3-1 3 1 3 1 1-1 3-1 3 1 3 1"/><path d="M12 2v12M7 7l5-5 5 5"/></svg>
-                        {{ advertisement.car_fuel_type }}
-                    </div>
-                </div>
-
-                <div class="location-info">UA, Одеська обл., {{ advertisement.car_city }}, 65000</div>
-
-                <div class="tags">
-                    <span class="tag">Доступний в кредит</span>
-                </div>
-
-                <div class="description-section">
-                    <h2>Опис від продавця</h2>
-                    <p>{{ advertisement.description|linebreaksbr }}</p>
-                    <a href="#" class="read-more">Читати більше <span style="font-size:16px">⌄</span></a>
-                </div>
-
-                <div class="options-section" id="optionsSection">
-                    <div class="options-grid">
-                        <div class="options-col">
-                            <div class="option-item">
-                                <div class="option-label">Поколіннягоплектація, модифікація</div>
-                                <div class="option-value">W213, 220d G-tronic (194 к.с.)</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Двигун</div>
-                                <div class="option-value">Дизель, 2 л, (194 к.с. / 143 кВт)</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Екологічний стандарт</div>
-                                <div class="option-value">Євро-5</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Коробка передач</div>
-                                <div class="option-value">Автомат</div>
-                            </div>
-
-                            <div class="option-item extra-options">
-                                <div class="option-label">Стан</div>
-                                <div class="option-value">Гаражне зберігання • Сервісна книжка • Перша реєстрація</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Витрати пального (л/100км)</div>
-                                <div class="option-value">місто 4.7 • траса 4.1 • змішаний 4.3</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Безпека</div>
-                                <div class="option-value">Центральний замок • Антиблокувальна система (ABS) • Система стабілізації (ESP) • Імобілайзер • Антипробуксовочна система (ASR) • Розподіл гальмівних зусиль (BAS, EBD) • Допомога при старті в гору • Запобігання зіткненню • Контроль сліпих зон • Розпізнавання дорожніх знаків • Датчик тиску в шинах • Система кріплення IsoFix • Блокування замків задніх дверей</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Комфорт</div>
-                                <div class="option-value">Бортовий комп'ютер • Датчик дощу • Підігрів дзеркал • Тоновані вікна • Запуск двигуна з кнопки • Складане заднє сидіння • Оздоблення керма шкірою • Оздоблення стелі чорного кольору • Передній центральний підлокітник • Декоративне підсвічування салону • Декоративні накладки на педалі • Розетка 12V • Система «старт-стоп» • Мультифункціональне кермо • Підрульові пелюстки перемикання передач • Відкриття багажника без допомоги рук • Електропривід дзеркал • Електроскладання дзеркал • Підкурювач і попільничка • Електронна приладова панель • Круїз контроль</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Мультимедіа</div>
-                                <div class="option-value">Акустика • Навігаційна система • Мультимедіа система з LCD-екраном • AUX • Bluetooth • USB • Голосове керування • Android Auto • CarPlay</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Фари</div>
-                                <div class="option-value">Світлодіодні</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Матеріали салону</div>
-                                <div class="option-value">Шкіра</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Колір салону</div>
-                                <div class="option-value">Темний</div>
-                            </div>
-                        </div>
-
-                        <div class="options-col">
-                            <div class="option-item">
-                                <div class="option-label">Привід</div>
-                                <div class="option-value">Задній</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Колір</div>
-                                <div class="option-value">Чорний металік</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Лакофарбове покриття</div>
-                                <div class="option-value">Професійно виправлені сліди використання</div>
-                            </div>
-                            <div class="option-item">
-                                <div class="option-label">Технічний стан</div>
-                                <div class="option-value stacked">
-                                    <div>Повністю непошкоджене</div>
-                                    <div>Продавець готовий до перевірки на СТО</div>
-                                    <div class="inspection-row">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#256799" stroke-width="2"><path d="M3 17l3-7h12l3 7"/><path d="M5 17v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2"/><path d="M16 17v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/></svg>
-                                        <a href="#">Замовити перевірку</a>
-                                        <span class="discount">Знижка 10%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="option-item extra-options">
-                                <div class="option-label">Підігрів сидінь</div>
-                                <div class="option-value">Передні сидіння</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Кондиціонер</div>
-                                <div class="option-value">Клімат-контроль 2-зонний</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Підсилювач керма</div>
-                                <div class="option-value">Електро</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Оптика</div>
-                                <div class="option-value">Датчик світла • Денні ходові вогні • Протитуманні фари</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Салон та кузов</div>
-                                <div class="option-value">Накладки на пороги</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Система допомоги при паркуванні</div>
-                                <div class="option-value">Парктроник передній • Парктроник задній • Система автоматичного паркування • Передня камера • Задня камера • Камера 360</div>
-                            </div>
-                            <div class="option-item extra-options">
-                                <div class="option-label">Подушка безпеки</div>
-                                <div class="option-value">Водія • Пасажира • Бічні передні • Бічні задні • Віконні (шторки) • Колін водія</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="button" class="btn-toggle-options" id="toggleOptionsBtn" onclick="toggleOptions()">Дивитись всі опції</button>
-                </div>
-
-            </div>
-        </main>
-
-        <aside class="sidebar">
-            <div class="sidebar-title-row">
-                <h2 class="sidebar-title">{{ advertisement.car_model }}</h2>
-                <button class="btn-like" title="В обрані" data-ad-id="{{ ad_id }}" onclick="toggleFavorite(event, this)">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="{% if is_favorite %}#e53935{% else %}none{% endif %}" stroke="{% if is_favorite %}#e53935{% else %}#aaa{% endif %}" stroke-width="2">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="sidebar-price">
-                <span class="usd">{{ advertisement.car_price }} $</span>
-                <span class="sep">•</span>
-                <span class="uah">{{ advertisement.car_price_uah }} грн</span>
-            </div>
-
-            <div class="seller-box">
-                <a href="#" class="seller-header">
-                    <div class="seller-avatar">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    </div>
-                    <div class="seller-info">
-                        <div class="seller-type">{{ owner.type }} ›</div>
-                        <div class="seller-name">
-                            {{ owner.name }}
-                            {% if owner.verified %}
-                            <span class="verified">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </a>
-
-                <ul class="seller-stats">
-                    <li>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#f5a623"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <b>{{ owner.rating }}</b> з 5 рейтинг &nbsp;•&nbsp; <a href="#">{{ owner.reviews }} відгуків ›</a>
-                    </li>
-                    <li>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00a046" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        <b>{{ owner.years_active }}</b> працює з AUTO.RIA
-                    </li>
-                    <li>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                        <a href="#">{{ owner.offers }} пропозицій продавця ›</a>
-                    </li>
-                </ul>
-
-                <button class="btn-phone">{{ owner.phone }}</button>
-                <a href="/payment/{{ ad_id }}/" class="btn-buy" id="buyLink">Купити</a>
-            </div>
-        </aside>
-
+    <!-- Банер -->
+    <div class="alert alert-warning text-center" style="background: #fef3c7; border: none; border-radius: 10px;">
+        <strong>🇺🇦 Долучайся до збору, подвоїмо кожну гривню!</strong>
+        <a href="#" class="text-danger fw-bold">AUTO.RIA.com</a>
     </div>
 
+    <!-- Заголовок -->
+    <h2 class="mb-3">🚗 Бу авто <span class="text-muted" style="font-size: 18px;">350 000+ оголошень про продаж авто з пробігом в Україні</span></h2>
 
-    <section class="seller-carousel-section">
-        <h2 class="seller-carousel-heading">
-            {% if seller_other_ads %}
-                Інші пропозиції продавця
-            {% else %}
-                Рекомендовані оголошення
-            {% endif %}
-        </h2>
-        <div class="seller-carousel-outer">
-            <button class="seller-carousel-nav-btn prev-btn" id="carouselPrev" onclick="carouselMove(-1)" aria-label="Назад">&#8249;</button>
-            <div class="seller-carousel-viewport">
-                <div class="seller-carousel-track" id="carouselTrack">
+    <!-- Кнопки фільтрів -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="{% url 'vehicle:vehicle_list' %}" class="btn btn-dark btn-sm">Всі</a>
+        <a href="{% url 'vehicle:vehicle_list' %}?is_new=False" class="btn btn-outline-dark btn-sm">Вживані</a>
+        <a href="{% url 'vehicle:new_vehicles' %}" class="btn btn-outline-dark btn-sm">Нові</a>
+        <a href="#" class="btn btn-outline-dark btn-sm">Під пригон</a>
+    </div>
 
-                    {% if seller_other_ads %}
-                        {% for ad in seller_other_ads %}
-                        <a href="/advertisement/{{ ad.id }}/" class="seller-carousel-card">
-                            <div class="seller-card-img-wrap">
-                                <img src="{{ ad.car_image_url }}" alt="{{ ad.car_model }}" loading="lazy">
-                                <span class="seller-card-source-badge">auto<span style="color:#256799">RIA</span></span>
-                            </div>
-                            <div class="seller-card-body">
-                                <div class="seller-card-title">{{ ad.car_model }}</div>
-                                <div class="seller-card-specs">
-                                    <span>{{ ad.generation }}</span>
-                                    <span>{{ ad.car_fuel_type }}</span>
-                                    <span>{{ ad.engine }}</span>
-                                    {% if ad.trim %}<span>{{ ad.trim }}</span>{% endif %}
-                                </div>
-                                <div class="seller-card-price">{{ ad.car_price }} $</div>
-                            </div>
-                        </a>
-                        {% endfor %}
+    <!-- Фільтри -->
+    <div class="row g-2 mb-4">
+        <div class="col-md-3">
+            <select class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Регіон</option>
+                {% for region in regions %}
+                    <option value="{{ region }}">{{ region }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="year" class="form-control form-control-sm" placeholder="Рік">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="min_price" class="form-control form-control-sm" placeholder="Ціна від">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="max_price" class="form-control form-control-sm" placeholder="Ціна до">
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-danger btn-sm w-100">🔍 Розширений пошук</button>
+        </div>
+    </div>
+
+    <!-- Список авто -->
+    <div class="row">
+        {% for vehicle in vehicles %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm vehicle-card">
+                <div class="card-img-top" style="height: 200px; background: #f5f5f5; overflow: hidden; position: relative;">
+                    {% if vehicle.main_image %}
+                        <img src="{{ vehicle.main_image.url }}" alt="{{ vehicle.brand }} {{ vehicle.model }}" style="width:100%; height:100%; object-fit:cover;">
                     {% else %}
-                        {% for ad in recommended_ads %}
-                        <a href="/advertisement/{{ ad.id }}/" class="seller-carousel-card">
-                            <div class="seller-card-img-wrap">
-                                <img src="{{ ad.car_image_url }}" alt="{{ ad.car_model }}" loading="lazy">
-                                <span class="seller-card-source-badge">auto<span style="color:#256799">RIA</span></span>
-                            </div>
-                            <div class="seller-card-body">
-                                <div class="seller-card-title">{{ ad.car_model }}</div>
-                                <div class="seller-card-specs">
-                                    <span>{{ ad.generation }}</span>
-                                    <span>{{ ad.car_fuel_type }}</span>
-                                    <span>{{ ad.engine }}</span>
-                                    {% if ad.trim %}<span>{{ ad.trim }}</span>{% endif %}
-                                </div>
-                                <div class="seller-card-price">{{ ad.car_price }} $</div>
-                            </div>
-                        </a>
-                        {% endfor %}
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No image" style="width:100%; height:100%; object-fit:cover;">
                     {% endif %}
 
+                    <!-- Бейджі -->
+                    <span style="position:absolute; top:10px; left:10px; background:#1764a7; color:#fff; padding:2px 10px; border-radius:12px; font-size:10px; font-weight:bold;">
+                        ✅ Перевірений VIN-код
+                    </span>
+
+                    {% with total=vehicle.images.count|add:1 %}
+                        {% if total > 1 %}
+                            <span style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.6); color:#fff; padding:2px 10px; border-radius:12px; font-size:12px;">
+                                📷 {{ total }}
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if vehicle.is_new %}
+                        <span style="position:absolute; top:35px; left:10px; background:#70c900; color:#fff; padding:2px 10px; border-radius:12px; font-size:10px; font-weight:bold;">
+                            🆕 Нове
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <a href="{% url 'vehicle:vehicle_detail' vehicle.id %}" class="card-title" style="font-size:16px; font-weight:700; color:#0b2e59; text-decoration:none;">
+                        {{ vehicle.brand }} {{ vehicle.model }} {{ vehicle.year }}
+                    </a>
+                    <div class="price-block" style="margin: 4px 0;">
+                        <span style="color:#00a046; font-size:20px; font-weight:700;">{{ vehicle.price }}$</span>
+                        <span style="color:#666; font-size:12px;">• {{ vehicle.price|floatformat:0|add:"0"|add:"0"|add:"0" }} грн</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; font-size:12px; color:#666;">
+                        <span>🔢 {{ vehicle.mileage|default:"0" }} тис. км</span>
+                        <span>⛽ {{ vehicle.get_fuel_type_display|default:"-" }}</span>
+                        <span>⚙ {{ vehicle.get_transmission_display|default:"-" }}</span>
+                        <span>📍 {{ vehicle.user.city|default:"Україна" }}</span>
+                    </div>
+                    <div style="font-size:11px; color:#999; margin-top:4px;">
+                        {{ vehicle.created_at|date:"d.m.Y" }}
+                    </div>
                 </div>
             </div>
-            <button class="seller-carousel-nav-btn next-btn" id="carouselNext" onclick="carouselMove(1)" aria-label="Вперед">&#8250;</button>
         </div>
-    </section>
-
-</div>
-{% include 'shared/footer.html' %}
-<script>
-const photos = [
-    {% if advertisement.additional_images %}
-        {% for img_url in advertisement.additional_images %}
-            "{{ img_url|safe }}",
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p style="font-size:18px; color:#999;">🚗 Автомобілів поки немає</p>
+            <a href="/vehicle/add/" class="btn btn-success">Додати перше авто</a>
+        </div>
         {% endfor %}
-    {% else %}
-        "{{ advertisement.car_image_url }}",
-        "{{ advertisement.car_image_url }}1",
-        "{{ advertisement.car_image_url }}2",
-        "{{ advertisement.car_image_url }}3",
-        "{{ advertisement.car_image_url }}4",
-        "{{ advertisement.car_image_url }}5",
+    </div>
+
+    <!-- Пагінація -->
+    {% if vehicles.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center flex-wrap">
+                    {% if vehicles.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ vehicles.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">← Назад</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in vehicles.paginator.page_range %}
+                        {% if vehicles.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > vehicles.number|add:'-3' and num < vehicles.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if vehicles.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ vehicles.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Вперед →</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
     {% endif %}
-];
-let current = 0;
+</div>
 
-function updateGallery() {
-    document.getElementById('mainPhoto').src = photos[current];
-    document.getElementById('counter').textContent = (current+1) + ' / ' + photos.length;
-    document.querySelectorAll('.thumb-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', i === current);
-    });
-}
-
-function changePhoto(dir) {
-    current = (current + dir + photos.length) % photos.length;
-    updateGallery();
-}
-
-function setPhoto(index, el) {
-    current = index;
-    updateGallery();
-}
-
-function toggleOptions() {
-    const section = document.getElementById('optionsSection');
-    const btn = document.getElementById('toggleOptionsBtn');
-    const expanded = section.classList.toggle('expanded');
-    btn.textContent = expanded ? 'Приховати' : 'Дивитись всі опції';
-}
-
-const buyLink = document.getElementById('buyLink');
-if (buyLink) {
-    buyLink.addEventListener('click', (event) => {
-        const token = localStorage.getItem('access');
-        if (!token) {
-            event.preventDefault();
-            window.location.href = '/users/authPage/';
-            return;
-        }
-
-        const url = new URL(buyLink.href, window.location.origin);
-        url.searchParams.set('access_token', token);
-        buyLink.href = url.toString();
-    });
-}
-
-/* ===================== CAROUSEL JS ===================== */
-(function () {
-    const CARD_WIDTH = 400;
-    const GAP = 20;
-    const STEP = CARD_WIDTH + GAP;
-    const VISIBLE = 3; // 3 cards visible at once (3*400 + 2*20 = 1240px)
-
-    const track = document.getElementById('carouselTrack');
-    const prevBtn = document.getElementById('carouselPrev');
-    const nextBtn = document.getElementById('carouselNext');
-
-    if (!track) return;
-
-    const cards = track.querySelectorAll('.seller-carousel-card');
-    const total = cards.length;
-    let pos = 0; // current offset index
-
-    function maxPos() {
-        return Math.max(0, total - VISIBLE);
+<style>
+    .vehicle-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 10px;
+        overflow: hidden;
     }
-
-    function updateButtons() {
-        prevBtn.disabled = pos <= 0;
-        nextBtn.disabled = pos >= maxPos();
+    .vehicle-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
     }
-
-    function applyTransform() {
-        track.style.transform = 'translateX(' + (-pos * STEP) + 'px)';
-        updateButtons();
+    .vehicle-card .card-title:hover {
+        text-decoration: underline !important;
     }
-
-    window.carouselMove = function (dir) {
-        pos = Math.min(Math.max(pos + dir, 0), maxPos());
-        applyTransform();
-    };
-
-    // Init
-    updateButtons();
-})();
-</script>
-
-</body>
-</html>
+    .vehicle-card .card-img-top {
+        background: #f8f9fa;
+    }
+    .pagination .page-link {
+        color: #1764a7;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #1764a7;
+        border-color: #1764a7;
+        color: #fff;
+    }
+</style>
+{% endblock %}

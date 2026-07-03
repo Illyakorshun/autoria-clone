@@ -1,0 +1,407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Додати оголошення - Auto.Ria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .form-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+        .form-card .required { color: red; }
+        .form-card label { font-weight: 600; font-size: 14px; color: #333; }
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #70c900;
+            box-shadow: 0 0 0 3px rgba(112, 201, 0, 0.1);
+        }
+        .btn-submit {
+            background: #70c900;
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-submit:hover { background: #5fb000; }
+        .photo-upload {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .photo-upload:hover { border-color: #70c900; background: #f8fff8; }
+        .photo-upload svg { width: 48px; height: 48px; color: #ccc; }
+        .photo-upload p { margin: 5px 0; }
+        .inline-group { display: flex; gap: 15px; }
+        .inline-group .form-group { flex: 1; }
+        .error-message {
+            color: red;
+            background: #ffebee;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: green;
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .preview-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 4px;
+        }
+        .preview-wrapper img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .preview-wrapper .main-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: #70c900;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .preview-wrapper .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: #ff4444;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-wrapper .remove-btn:hover { background: #cc0000; }
+        .add-more-btn {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+            transition: all 0.3s;
+        }
+        .add-more-btn:hover { border-color: #70c900; color: #70c900; }
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .inline-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'shared/header.html' %}
+
+    <div class="container">
+        <div class="form-card">
+            <h2>📝 Додавання оголошення</h2>
+            <p>Вкажіть характеристики вашого авто</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" id="addVehicleForm">
+                {% csrf_token %}
+
+                <!-- ===== ФОТО - З МОЖЛИВІСТЮ ДОДАВАТИ КІЛЬКА ===== -->
+                <div class="mb-4">
+                    <label class="form-label">Фото автомобіля</label>
+                    <div class="photo-upload" onclick="document.getElementById('imagesInput').click()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <p style="color:#999; font-size:14px;">Натисніть для завантаження фото</p>
+                        <p style="color:#bbb; font-size:12px;">Можна вибрати декілька фото (Ctrl+клік)</p>
+                        <input type="file" id="imagesInput" name="images" accept="image/*" style="display:none;" multiple onchange="previewMultipleImages(event)">
+                    </div>
+
+                    <!-- Контейнер для прев'ю фото -->
+                    <div id="imagePreviewContainer" class="preview-container">
+                        <!-- Сюди будуть додаватися прев'ю -->
+                    </div>
+
+                    <!-- Приховане поле для зберігання кількості фото -->
+                    <input type="hidden" id="imageCount" name="image_count" value="0">
+
+                    <small class="text-muted">Максимум 10 фото. Перше фото буде головним.</small>
+                </div>
+
+                <!-- ===== Основна інформація ===== -->
+                <div class="mb-3">
+                    <label class="form-label"><span class="required">*</span> Бренд</label>
+                    <input type="text" class="form-control" name="brand" required placeholder="Наприклад: BMW">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><span class="required">*</span> Модель</label>
+                    <input type="text" class="form-control" name="model" required placeholder="Наприклад: X5">
+                </div>
+
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Рік випуску</label>
+                        <input type="number" class="form-control" name="year" required min="1950" max="2026" placeholder="2020">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пробіг (км)</label>
+                        <input type="number" class="form-control" name="mileage" placeholder="150000">
+                    </div>
+                </div>
+
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Тип кузова</label>
+                        <select class="form-select" name="body_type" required>
+                            <option value="SEDAN">Седан</option>
+                            <option value="HATCHBACK">Хетчбек</option>
+                            <option value="SUV">Позашляховик</option>
+                            <option value="COUPE">Купе</option>
+                            <option value="CONVERTIBLE">Кабріолет</option>
+                            <option value="WAGON">Універсал</option>
+                            <option value="MINIVAN">Мінівен</option>
+                            <option value="PICKUP">Пікап</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Паливо</label>
+                        <select class="form-select" name="fuel_type" required>
+                            <option value="BENZIN">Бензин</option>
+                            <option value="DIESEL">Дизель</option>
+                            <option value="ELECTRO">Електро</option>
+                            <option value="HYBRID">Гібрид</option>
+                            <option value="GAS">Газ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Коробка передач</label>
+                        <select class="form-select" name="transmission" required>
+                            <option value="MANUAL">Механіка</option>
+                            <option value="AUTOMATIC">Автомат</option>
+                            <option value="ROBOT">Робот</option>
+                            <option value="CVT">Варіатор</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Привід</label>
+                        <select class="form-select" name="drive_type" required>
+                            <option value="FRONT">Передній</option>
+                            <option value="REAR">Задній</option>
+                            <option value="FULL">Повний</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label">Об'єм двигуна (л)</label>
+                        <input type="number" step="0.1" class="form-control" name="engine_volume" placeholder="2.0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Потужність (к.с.)</label>
+                        <input type="number" class="form-control" name="engine_power" placeholder="245">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Колір</label>
+                    <input type="text" class="form-control" name="color" placeholder="Сірий">
+                </div>
+
+                <!-- ===== VIN-код ===== -->
+                <div class="mb-3">
+                    <label class="form-label">VIN-код</label>
+                    <input type="text" class="form-control" name="vin_code" placeholder="2FMPK4J93GBB8787" maxlength="17">
+                    <small class="text-muted">Авто з перевіреним VIN-кодом продаються швидше</small>
+                </div>
+
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label">Кількість власників</label>
+                        <input type="number" class="form-control" name="owners_count" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Пригнаний з</label>
+                        <select class="form-select" name="imported_from">
+                            <option value="">Не вказано</option>
+                            <option value="США">США</option>
+                            <option value="Канада">Канада</option>
+                            <option value="Німеччина">Німеччина</option>
+                            <option value="Японія">Японія</option>
+                            <option value="Південна Корея">Південна Корея</option>
+                            <option value="Європа">Європа</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="has_accident"> Був у ДТП
+                    </label>
+                </div>
+
+                <!-- ===== Опис ===== -->
+                <div class="mb-3">
+                    <label class="form-label">Опис</label>
+                    <textarea class="form-control" name="description" rows="5" placeholder="Опишіть стан авто..."></textarea>
+                    <small class="text-muted">Доступно 2000 символів</small>
+                </div>
+
+                <!-- ===== Ціна ===== -->
+                <div class="inline-group">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> Ціна ($)</label>
+                        <input type="number" class="form-control" name="price" required placeholder="16300" step="0.01">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" name="is_new"> Нове авто
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit">Розмістити оголошення</button>
+            </form>
+        </div>
+    </div>
+
+    {% include 'shared/footer.html' %}
+
+    <script>
+        let selectedFiles = [];
+        const maxImages = 10;
+
+        function previewMultipleImages(event) {
+            const input = event.target;
+            const container = document.getElementById('imagePreviewContainer');
+
+            // Додаємо нові файли до списку
+            for (let i = 0; i < input.files.length; i++) {
+                if (selectedFiles.length >= maxImages) {
+                    alert('Максимум 10 фото!');
+                    break;
+                }
+                selectedFiles.push(input.files[i]);
+            }
+
+            // Оновлюємо відображення
+            renderPreviews();
+
+            // Оновлюємо кількість фото в прихованому полі
+            document.getElementById('imageCount').value = selectedFiles.length;
+
+            // Очищаємо input, щоб можна було додавати ще
+            input.value = '';
+        }
+
+        function renderPreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                const wrapper = document.createElement('div');
+                wrapper.className = 'preview-wrapper';
+
+                const img = document.createElement('img');
+
+                // Позначка головного фото
+                if (index === 0) {
+                    const badge = document.createElement('span');
+                    badge.className = 'main-badge';
+                    badge.textContent = 'Головне';
+                    wrapper.appendChild(badge);
+                }
+
+                // Кнопка видалення
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    selectedFiles.splice(index, 1);
+                    renderPreviews();
+                    document.getElementById('imageCount').value = selectedFiles.length;
+                };
+                wrapper.appendChild(removeBtn);
+
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                wrapper.appendChild(img);
+                container.appendChild(wrapper);
+            });
+
+            // Додаємо кнопку "Додати ще", якщо є місце
+            if (selectedFiles.length < maxImages) {
+                const addBtn = document.createElement('div');
+                addBtn.className = 'add-more-btn';
+                addBtn.textContent = '+';
+                addBtn.onclick = function() {
+                    document.getElementById('imagesInput').click();
+                };
+                container.appendChild(addBtn);
+            }
+        }
+    </script>
+</body>
+</html>

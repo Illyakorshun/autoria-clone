@@ -12,11 +12,18 @@ def index(request):
         is_moderated=True
     ).order_by('-created_at')[:8]
 
+    # Якщо немає - показуємо всі
+    if not latest_vehicles.exists():
+        latest_vehicles = Vehicle.objects.all().order_by('-created_at')[:8]
+
     # Популярні авто
     popular_vehicles = Vehicle.objects.filter(
         is_active=True,
         is_moderated=True
     ).order_by('-views')[:8]
+
+    if not popular_vehicles.exists():
+        popular_vehicles = Vehicle.objects.all().order_by('-views')[:8]
 
     # Статистика
     stats = {
@@ -25,30 +32,34 @@ def index(request):
         'models': Vehicle.objects.values('model').distinct().count(),
     }
 
+    if stats['total'] == 0:
+        stats['total'] = Vehicle.objects.count()
+        stats['brands'] = Vehicle.objects.values('brand').distinct().count()
+        stats['models'] = Vehicle.objects.values('model').distinct().count()
+
+    # ТУТ ГОЛОВНЕ - рендеримо home.html
     return render(request, 'pages/home.html', {
         'latest_vehicles': latest_vehicles,
         'popular_vehicles': popular_vehicles,
         'stats': stats,
+        'title': 'Auto.Ria - Головна'
     })
 
 
 def about(request):
-    """Сторінка про нас"""
     return render(request, 'pages/about.html')
 
 
 def contacts(request):
-    """Сторінка контактів"""
     return render(request, 'pages/contacts.html')
 
 
 def api_stats(request):
-    """API - статистика"""
     return JsonResponse({
         'success': True,
         'data': {
             'total_vehicles': Vehicle.objects.filter(is_active=True).count(),
-            'total_users': 0,  # Додати пізніше
+            'total_users': 0,
             'today_views': 0,
         }
     })

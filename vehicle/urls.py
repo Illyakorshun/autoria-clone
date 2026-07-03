@@ -17,6 +17,7 @@ urlpatterns = [
     path('add/', views.add_vehicle, name='add_vehicle'),
     path('<int:pk>/', views.vehicle_detail, name='vehicle_detail'),
     path('new/', views.vehicle_list, name='new_vehicles'),
+    path('new/', views.new_vehicles, name='new_vehicles'),
 
     # API
     path('api/list/', views.api_vehicle_list, name='api_vehicle_list'),
